@@ -552,6 +552,86 @@
     .cal-day-header { font-size: 0.48rem; }
     .toast { bottom: 15px; right: 15px; padding: 10px 16px; font-size: 0.8rem; border-radius: 10px; }
   }
+  /* History Section */
+  .history-section {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+    border: 1px solid var(--border);
+  }
+  .history-section h3 { margin-bottom: 12px; font-size: 0.95rem; }
+  .history-controls {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .history-controls input {
+    background: #222240;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px 10px;
+    color: var(--text);
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.78rem;
+  }
+  .history-controls input:focus { outline: none; border-color: var(--accent); }
+  .history-list { display: flex; flex-direction: column; gap: 8px; }
+  .history-entry {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    transition: border-color 0.3s;
+  }
+  .history-entry:hover { border-color: var(--accent2); }
+  .history-entry-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .history-date {
+    font-weight: 600;
+    font-size: 0.88rem;
+    color: var(--accent2);
+  }
+  .history-score {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+    background: rgba(139,92,246,0.15);
+    color: var(--accent2);
+  }
+  .history-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 6px 14px;
+    font-size: 0.75rem;
+    color: var(--text-dim);
+  }
+  .history-details span { display: flex; align-items: center; gap: 4px; }
+  .history-details .detail-label { color: var(--text-dim); }
+  .history-details .detail-value { color: var(--text); font-weight: 500; }
+  .history-reflections {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+    font-size: 0.73rem;
+    color: var(--text-dim);
+    line-height: 1.5;
+  }
+  .history-reflections p { margin-bottom: 3px; }
+  .history-reflections strong { color: var(--text); font-weight: 500; }
+  .history-empty {
+    text-align: center;
+    color: var(--text-dim);
+    padding: 20px;
+    font-size: 0.82rem;
+  }
   @media (max-width: 420px) {
     .stats-row { grid-template-columns: repeat(2, 1fr); }
     .entry-grid { grid-template-columns: 1fr; }
@@ -559,6 +639,7 @@
     .header h1 { font-size: 1.2rem; }
     .mood-selector { gap: 4px; }
     .mood-btn { font-size: 1rem; padding: 2px 4px; }
+    .history-details { grid-template-columns: 1fr 1fr; }
   }
 </style>
 </head>
@@ -752,6 +833,15 @@
       <h3>🕌 Salah Tracker</h3>
       <canvas id="salahChart"></canvas>
     </div>
+  </div>
+
+  <!-- History -->
+  <div class="history-section">
+    <h3>📝 Entry History</h3>
+    <div class="history-controls">
+      <input type="text" id="historySearch" placeholder="Search entries..." oninput="renderHistory()">
+    </div>
+    <div class="history-list" id="historyList"></div>
   </div>
 
 
@@ -2167,6 +2257,9 @@ function refreshAll() {
   // Charts
   renderCharts(data);
 
+  // History
+  renderHistory();
+
   // Quote
   renderQuote();
 
@@ -2232,6 +2325,74 @@ function renderCalendar(data) {
     el.textContent = d;
     grid.appendChild(el);
   }
+}
+
+function renderHistory() {
+  const data = getData();
+  const list = document.getElementById('historyList');
+  const search = (document.getElementById('historySearch').value || '').toLowerCase();
+  list.innerHTML = '';
+
+  if (!data.length) {
+    list.innerHTML = '<div class="history-empty">No entries yet — start logging to see your history here!</div>';
+    return;
+  }
+
+  const filtered = data.slice().reverse().filter(e => {
+    if (!search) return true;
+    const searchable = [
+      e.date, e.procSource, e.grateful, e.learned, e.doBetter,
+      MOOD_LABELS[e.mood] || '', (e.salah || []).join(' ')
+    ].join(' ').toLowerCase();
+    return searchable.includes(search);
+  });
+
+  if (!filtered.length) {
+    list.innerHTML = '<div class="history-empty">No entries match your search</div>';
+    return;
+  }
+
+  filtered.forEach(e => {
+    const sleep = calcSleepHours(e.sleepStart, e.sleepEnd);
+    const salahStr = (e.salah || []).length ? e.salah.join(', ') : 'None';
+    const moodEmoji = MOODS[e.mood] || '—';
+    const dateObj = new Date(e.date + 'T00:00:00');
+    const dateFormatted = dateObj.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+
+    const div = document.createElement('div');
+    div.className = 'history-entry';
+
+    let reflections = '';
+    if (e.grateful || e.learned || e.doBetter) {
+      reflections = '<div class="history-reflections">';
+      if (e.grateful) reflections += `<p><strong>Grateful for:</strong> ${escapeHtml(e.grateful)}</p>`;
+      if (e.learned) reflections += `<p><strong>Learned:</strong> ${escapeHtml(e.learned)}</p>`;
+      if (e.doBetter) reflections += `<p><strong>Do better:</strong> ${escapeHtml(e.doBetter)}</p>`;
+      reflections += '</div>';
+    }
+
+    div.innerHTML = `
+      <div class="history-entry-header">
+        <span class="history-date">${dateFormatted}</span>
+        <span class="history-score">+${e.score || 0} XP</span>
+      </div>
+      <div class="history-details">
+        <span><span class="detail-label">Mood:</span> <span class="detail-value">${moodEmoji}</span></span>
+        <span><span class="detail-label">Sleep:</span> <span class="detail-value">${sleep != null ? sleep + 'h' : '—'}</span></span>
+        <span><span class="detail-label">Quran:</span> <span class="detail-value">${e.quranTime ? e.quranTime + ' min' : '—'}</span></span>
+        <span><span class="detail-label">Procrastination:</span> <span class="detail-value">${e.procTime ? e.procTime + 'h' : '—'}${e.procSource ? ' (' + escapeHtml(e.procSource) + ')' : ''}</span></span>
+        <span><span class="detail-label">Salah:</span> <span class="detail-value">${salahStr}</span></span>
+      </div>
+      ${reflections}
+    `;
+    list.appendChild(div);
+  });
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
 }
 
 function renderCharts(data) {
