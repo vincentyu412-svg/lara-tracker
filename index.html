@@ -1,0 +1,2559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lara's Accountability Tracker 🌙</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+  :root {
+    --bg: #0f0f1a;
+    --card: #1a1a2e;
+    --card-hover: #222240;
+    --accent: #e94560;
+    --accent2: #8b5cf6;
+    --accent3: #06d6a0;
+    --accent4: #ffd166;
+    --text: #eee;
+    --text-dim: #888;
+    --border: #2a2a4a;
+    --gold: #ffd700;
+    --silver: #c0c0c0;
+    --bronze: #cd7f32;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .container { max-width: 1100px; margin: 0 auto; padding: 12px; }
+
+  /* Header */
+  .header {
+    text-align: center;
+    padding: 16px 0;
+    position: relative;
+  }
+  .header h1 {
+    font-size: 1.8rem;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 3px;
+  }
+  .header p { color: var(--text-dim); font-size: 0.8rem; }
+
+  /* Stats Row */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .stat-card {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 12px 8px;
+    text-align: center;
+    border: 1px solid var(--border);
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .stat-card:hover { transform: translateY(-2px); border-color: var(--accent); }
+  .stat-card .stat-icon { font-size: 1.4rem; margin-bottom: 4px; }
+  .stat-card .stat-value { font-size: 1.4rem; font-weight: 700; }
+  .stat-card .stat-label { font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; }
+  .stat-card.streak .stat-value { color: var(--accent); }
+  .stat-card.points .stat-value { color: var(--accent4); }
+  .stat-card.level .stat-value { color: var(--accent2); }
+  .stat-card.mood .stat-value { color: var(--accent3); }
+
+  /* XP Bar */
+  .xp-bar-container {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 16px;
+    border: 1px solid var(--border);
+  }
+  .xp-bar-header { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.78rem; }
+  .xp-bar-header .level-text { color: var(--accent2); font-weight: 600; }
+  .xp-bar-bg {
+    background: #2a2a4a;
+    border-radius: 8px;
+    height: 14px;
+    overflow: hidden;
+  }
+  .xp-bar-fill {
+    height: 100%;
+    border-radius: 10px;
+    background: linear-gradient(90deg, var(--accent2), var(--accent));
+    transition: width 0.8s ease;
+    position: relative;
+  }
+  .xp-bar-fill::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.15) 50%, transparent 100%);
+    animation: shimmer 2s infinite;
+  }
+  @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+
+  /* Badges */
+  .badges-section {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 16px;
+    border: 1px solid var(--border);
+  }
+  .badges-section h3 { margin-bottom: 10px; font-size: 0.9rem; }
+  .badges-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+  .badge {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .badge.earned {
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    box-shadow: 0 0 20px rgba(233, 69, 96, 0.3);
+    animation: badgePulse 2s infinite;
+  }
+  .badge.locked {
+    background: #222;
+    opacity: 0.4;
+    filter: grayscale(1);
+  }
+  .badge:hover { transform: scale(1.15); }
+  .badge .badge-tooltip {
+    display: none;
+    position: absolute;
+    bottom: -35px;
+    background: #333;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.65rem;
+    white-space: nowrap;
+    z-index: 10;
+  }
+  .badge:hover .badge-tooltip { display: block; }
+  @keyframes badgePulse { 0%, 100% { box-shadow: 0 0 20px rgba(233,69,96,0.3); } 50% { box-shadow: 0 0 30px rgba(233,69,96,0.5); } }
+
+  /* Charts Grid */
+  .charts-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .chart-card {
+    background: var(--card);
+    border-radius: 10px;
+    padding: 10px;
+    border: 1px solid var(--border);
+  }
+  .chart-card h3 { margin-bottom: 6px; font-size: 0.75rem; }
+  .chart-card canvas { max-height: 120px; }
+
+  /* Top Row: Entry + AI */
+  .top-row {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 14px;
+    margin-bottom: 16px;
+    align-items: start;
+  }
+
+  /* Data Entry */
+  .entry-section {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 16px;
+    border: 1px solid var(--border);
+  }
+  .entry-section h3 {
+    margin-bottom: 12px;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .entry-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 10px;
+  }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label { font-size: 0.8rem; color: var(--text-dim); font-weight: 500; }
+  .field input, .field select, .field textarea {
+    background: #222240;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 10px;
+    color: var(--text);
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.82rem;
+    transition: border-color 0.3s;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+  .field textarea { resize: vertical; min-height: 50px; }
+
+  .mood-selector { display: flex; gap: 6px; margin-top: 4px; }
+  .mood-btn {
+    font-size: 1.4rem;
+    cursor: pointer;
+    padding: 3px 7px;
+    border-radius: 8px;
+    border: 2px solid transparent;
+    background: none;
+    transition: all 0.2s;
+    filter: grayscale(0.5);
+  }
+  .mood-btn:hover, .mood-btn.active {
+    filter: grayscale(0);
+    transform: scale(1.2);
+    border-color: var(--accent);
+  }
+
+  .salah-checks { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 5px; }
+  .salah-check {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.8rem;
+  }
+  .salah-check input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--accent);
+    cursor: pointer;
+  }
+
+  .btn-save {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: white;
+    border: none;
+    padding: 10px 28px;
+    border-radius: 10px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 12px;
+    transition: all 0.3s;
+    font-family: 'Poppins', sans-serif;
+    width: 100%;
+  }
+  .btn-save:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(233,69,96,0.3); }
+
+
+
+  /* Streak Calendar */
+  .calendar-section {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 18px 20px;
+    margin-bottom: 25px;
+    border: 1px solid var(--border);
+    max-width: 380px;
+  }
+  .calendar-section h3 { margin-bottom: 10px; font-size: 0.9rem; }
+  .calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 3px;
+  }
+  .cal-day-header {
+    text-align: center;
+    font-size: 0.55rem;
+    color: var(--text-dim);
+    padding: 2px;
+    font-weight: 600;
+  }
+  .cal-day {
+    aspect-ratio: 1;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6rem;
+    font-weight: 500;
+    position: relative;
+  }
+  .cal-day.empty { background: transparent; }
+  .cal-day.logged { background: var(--accent); color: white; }
+  .cal-day.missed { background: #2a2a4a; color: var(--text-dim); }
+  .cal-day.today { border: 2px solid var(--accent4); }
+  .cal-day.future { background: #1a1a25; color: #444; }
+
+  /* Motivational Quote */
+  .quote-card {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 14px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .quote-card::before {
+    content: '"';
+    position: absolute;
+    top: -20px;
+    left: 10px;
+    font-size: 6rem;
+    opacity: 0.15;
+    font-family: Georgia, serif;
+  }
+  .quote-card p { font-size: 0.9rem; font-weight: 500; line-height: 1.5; position: relative; z-index: 1; }
+  .quote-card .quote-source { font-size: 0.72rem; opacity: 0.8; margin-top: 5px; }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: var(--accent3);
+    color: #000;
+    padding: 14px 24px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    z-index: 999;
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.4s ease;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  /* Import/Export buttons */
+  .toolbar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .btn-secondary {
+    background: var(--card);
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 8px 18px;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+    transition: all 0.3s;
+  }
+  .btn-secondary:hover { border-color: var(--accent); background: var(--card-hover); }
+
+  .full-width { grid-column: 1 / -1; }
+
+  /* Daily Islamic Lesson */
+  .lesson-card {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 14px;
+    border: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+  .lesson-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent3), var(--accent2));
+  }
+  .lesson-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .lesson-header h3 { font-size: 0.9rem; color: var(--accent3); }
+  .lesson-type {
+    display: inline-block;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+  .lesson-type.name { background: rgba(139,92,246,0.2); color: var(--accent2); }
+  .lesson-type.ayah { background: rgba(6,214,160,0.2); color: var(--accent3); }
+  .lesson-type.hadith { background: rgba(255,209,102,0.2); color: var(--accent4); }
+  .lesson-arabic {
+    font-size: 1.3rem;
+    text-align: center;
+    padding: 10px 0;
+    line-height: 1.8;
+    font-family: 'Traditional Arabic', 'Scheherazade', serif;
+    color: var(--accent4);
+    direction: rtl;
+  }
+  .lesson-translation {
+    font-size: 0.88rem;
+    font-weight: 500;
+    text-align: center;
+    margin-bottom: 8px;
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .lesson-source {
+    font-size: 0.75rem;
+    color: var(--accent3);
+    text-align: center;
+    margin-bottom: 12px;
+    font-weight: 600;
+  }
+  .lesson-explanation {
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    line-height: 1.6;
+    padding: 10px 12px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 8px;
+    border-left: 3px solid var(--accent3);
+  }
+  .lesson-refresh {
+    display: block;
+    margin: 12px auto 0;
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    padding: 6px 16px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+    transition: all 0.3s;
+  }
+  .lesson-refresh:hover { border-color: var(--accent3); color: var(--accent3); }
+
+  /* AI Helper */
+  .ai-section {
+    background: linear-gradient(135deg, #1a1040 0%, #12203a 50%, #0f1a2e 100%);
+    border-radius: 12px;
+    padding: 16px;
+    border: 1px solid rgba(139, 92, 246, 0.25);
+    position: relative;
+    overflow: hidden;
+    position: sticky;
+    top: 12px;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 0 30px rgba(139, 92, 246, 0.08), inset 0 1px 0 rgba(255,255,255,0.04);
+  }
+  .ai-section::-webkit-scrollbar { width: 4px; }
+  .ai-section::-webkit-scrollbar-thumb { background: var(--accent2); border-radius: 4px; }
+  .ai-section::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #8b5cf6, #06d6a0, #ffd166);
+  }
+  .ai-section h3 { margin-bottom: 10px; font-size: 0.95rem; color: #c4b5fd; }
+  .ai-analysis { font-size: 0.8rem; line-height: 1.6; color: var(--text); }
+  .ai-analysis .ai-block {
+    background: rgba(255,255,255,0.03);
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    border-left: 3px solid var(--accent2);
+  }
+  .ai-analysis .ai-block.positive { border-left-color: var(--accent3); }
+  .ai-analysis .ai-block.warning { border-left-color: var(--accent); }
+  .ai-analysis .ai-block.tip { border-left-color: var(--accent4); }
+  .ai-analysis .ai-block h4 { font-size: 0.7rem; margin-bottom: 4px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; }
+  .ai-analysis .ai-block p { margin: 0; font-size: 0.78rem; color: var(--text); }
+  .ai-analysis .ai-hadith {
+    font-style: italic;
+    color: var(--accent4);
+    font-size: 0.72rem;
+    margin-top: 4px;
+    display: block;
+  }
+  .ai-no-data { text-align: center; color: var(--text-dim); padding: 14px; font-size: 0.82rem; }
+
+  @media (max-width: 1000px) {
+    .top-row { grid-template-columns: 1fr; }
+    .ai-section { position: static; max-height: none; }
+  }
+  @media (max-width: 768px) {
+    .container { padding: 8px; }
+    .header { padding: 10px 0; }
+    .header h1 { font-size: 1.4rem; }
+    .header p { font-size: 0.72rem; }
+    .stats-row { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+    .stat-card { padding: 8px 4px; border-radius: 10px; }
+    .stat-card .stat-icon { font-size: 1.1rem; margin-bottom: 2px; }
+    .stat-card .stat-value { font-size: 1.1rem; }
+    .stat-card .stat-label { font-size: 0.55rem; letter-spacing: 0; }
+    .charts-grid { grid-template-columns: repeat(2, 1fr); gap: 6px; }
+    .chart-card { padding: 8px; }
+    .chart-card h3 { font-size: 0.68rem; margin-bottom: 4px; }
+    .chart-card canvas { max-height: 100px; }
+    .entry-section { padding: 12px; }
+    .entry-section h3 { font-size: 0.9rem; margin-bottom: 10px; }
+    .entry-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .field label { font-size: 0.7rem; }
+    .field input, .field select, .field textarea { padding: 7px 8px; font-size: 0.78rem; border-radius: 7px; }
+    .mood-btn { font-size: 1.2rem; padding: 2px 5px; }
+    .salah-checks { gap: 8px; }
+    .salah-check { font-size: 0.7rem; gap: 3px; }
+    .salah-check input[type="checkbox"] { width: 15px; height: 15px; }
+    .btn-save { padding: 9px 20px; font-size: 0.82rem; }
+    .badges-section { padding: 10px; }
+    .badges-section h3 { font-size: 0.8rem; margin-bottom: 8px; }
+    .badges-grid { gap: 6px; }
+    .badge { width: 34px; height: 34px; font-size: 0.9rem; }
+    .xp-bar-container { padding: 10px; }
+    .xp-bar-header { font-size: 0.7rem; }
+    .xp-bar-bg { height: 10px; }
+    .quote-card { padding: 12px 14px; margin-bottom: 10px; border-radius: 10px; }
+    .quote-card::before { font-size: 4rem; }
+    .quote-card p { font-size: 0.78rem; line-height: 1.4; }
+    .quote-card .quote-source { font-size: 0.65rem; }
+    .lesson-card { padding: 12px; margin-bottom: 10px; }
+    .lesson-arabic { font-size: 1.1rem; padding: 6px 0; }
+    .lesson-translation { font-size: 0.8rem; }
+    .lesson-explanation { font-size: 0.72rem; padding: 8px 10px; }
+    .ai-section { padding: 12px; border-radius: 10px; }
+    .ai-section h3 { font-size: 0.85rem; margin-bottom: 8px; }
+    .ai-analysis .ai-block { padding: 8px 10px; margin-bottom: 6px; }
+    .ai-analysis .ai-block p { font-size: 0.72rem; }
+    .ai-analysis .ai-hadith { font-size: 0.66rem; }
+    .calendar-section { padding: 12px; max-width: 280px; }
+    .calendar-section h3 { font-size: 0.78rem; }
+    .cal-day { font-size: 0.5rem; border-radius: 4px; }
+    .cal-day-header { font-size: 0.48rem; }
+    .toast { bottom: 15px; right: 15px; padding: 10px 16px; font-size: 0.8rem; border-radius: 10px; }
+  }
+  @media (max-width: 420px) {
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+    .entry-grid { grid-template-columns: 1fr; }
+    .charts-grid { grid-template-columns: 1fr; }
+    .header h1 { font-size: 1.2rem; }
+    .mood-selector { gap: 4px; }
+    .mood-btn { font-size: 1rem; padding: 2px 4px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Header -->
+  <div class="header">
+    <h1>🌙 Lara's Accountability Tracker</h1>
+    <p>every day is a chance to level up — bismillah</p>
+  </div>
+
+  <!-- Motivational Quote -->
+  <div class="quote-card" id="quoteCard">
+    <p id="quoteText"></p>
+    <div class="quote-source" id="quoteSource"></div>
+  </div>
+
+  <!-- Daily Islamic Lesson -->
+  <div class="lesson-card" id="lessonCard">
+    <div class="lesson-header">
+      <h3>🕌 Daily Lesson</h3>
+      <span class="lesson-type" id="lessonType"></span>
+    </div>
+    <div class="lesson-arabic" id="lessonArabic"></div>
+    <div class="lesson-translation" id="lessonTranslation"></div>
+    <div class="lesson-source" id="lessonSource"></div>
+    <div class="lesson-explanation" id="lessonExplanation"></div>
+    <button class="lesson-refresh" onclick="renderLesson(true)">Show another ↻</button>
+  </div>
+
+  <!-- Top Row: Entry + AI Advisor -->
+  <div class="top-row">
+  <div class="entry-section">
+    <h3>✏️ Log Today</h3>
+    <div class="entry-grid">
+      <div class="field">
+        <label>Date</label>
+        <input type="date" id="entryDate">
+      </div>
+      <div class="field">
+        <label>Sleep Start</label>
+        <input type="time" id="sleepStart">
+      </div>
+      <div class="field">
+        <label>Sleep End</label>
+        <input type="time" id="sleepEnd">
+      </div>
+      <div class="field">
+        <label>Time Procrastinating (hrs)</label>
+        <input type="number" id="procTime" min="0" max="24" step="0.5" placeholder="e.g. 2.5">
+      </div>
+      <div class="field">
+        <label>Main Procrastination Source</label>
+        <select id="procSource">
+          <option value="">Select...</option>
+          <option value="TikTok">TikTok</option>
+          <option value="Instagram">Instagram</option>
+          <option value="YouTube">YouTube</option>
+          <option value="Netflix">Netflix</option>
+          <option value="Texting">Texting</option>
+          <option value="Gaming">Gaming</option>
+          <option value="Overthinking">Overthinking</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Quran Time (min)</label>
+        <input type="number" id="quranTime" min="0" max="300" placeholder="e.g. 20">
+      </div>
+      <div class="field full-width">
+        <label>Salah on Time 🕌</label>
+        <div class="salah-checks">
+          <label class="salah-check"><input type="checkbox" id="salahFajr"> Fajr</label>
+          <label class="salah-check"><input type="checkbox" id="salahDhuhr"> Dhuhr</label>
+          <label class="salah-check"><input type="checkbox" id="salahAsr"> Asr</label>
+          <label class="salah-check"><input type="checkbox" id="salahMaghrib"> Maghrib</label>
+          <label class="salah-check"><input type="checkbox" id="salahIsha"> Isha</label>
+        </div>
+      </div>
+      <div class="field full-width">
+        <label>Mood</label>
+        <div class="mood-selector">
+          <button class="mood-btn" data-mood="1" onclick="selectMood(1)">😭</button>
+          <button class="mood-btn" data-mood="2" onclick="selectMood(2)">😢</button>
+          <button class="mood-btn" data-mood="3" onclick="selectMood(3)">😐</button>
+          <button class="mood-btn" data-mood="4" onclick="selectMood(4)">😊</button>
+          <button class="mood-btn" data-mood="5" onclick="selectMood(5)">🔥</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>Grateful for...</label>
+        <textarea id="grateful" placeholder="3 things..."></textarea>
+      </div>
+      <div class="field">
+        <label>One thing I learned</label>
+        <textarea id="learned" placeholder="Today I learned..."></textarea>
+      </div>
+      <div class="field">
+        <label>One thing I can do better</label>
+        <textarea id="doBetter" placeholder="Tomorrow I will..."></textarea>
+      </div>
+    </div>
+    <button class="btn-save" onclick="saveEntry()">Save Entry ✨</button>
+  </div>
+
+  <!-- AI Progress Helper -->
+  <div class="ai-section">
+    <h3>🤖 Your Personal Advisor</h3>
+    <div class="ai-analysis" id="aiAnalysis">
+      <div class="ai-no-data">Log at least 3 days to get personalized advice based on Quran & Sunnah</div>
+    </div>
+  </div>
+  </div>
+
+  <!-- Stats Row -->
+  <div class="stats-row">
+    <div class="stat-card streak">
+      <div class="stat-icon">🔥</div>
+      <div class="stat-value" id="currentStreak">0</div>
+      <div class="stat-label">Day Streak</div>
+    </div>
+    <div class="stat-card points">
+      <div class="stat-icon">⭐</div>
+      <div class="stat-value" id="totalPoints">0</div>
+      <div class="stat-label">Total XP</div>
+    </div>
+    <div class="stat-card level">
+      <div class="stat-icon">🏆</div>
+      <div class="stat-value" id="currentLevel">1</div>
+      <div class="stat-label">Level</div>
+    </div>
+    <div class="stat-card mood">
+      <div class="stat-icon">💚</div>
+      <div class="stat-value" id="avgMood">-</div>
+      <div class="stat-label">Avg Mood (7d)</div>
+    </div>
+    <div class="stat-card" style="border-color: var(--accent3);">
+      <div class="stat-icon">📖</div>
+      <div class="stat-value" id="quranStreak" style="color:var(--accent3)">0</div>
+      <div class="stat-label">Quran Streak</div>
+    </div>
+  </div>
+
+  <!-- XP Bar -->
+  <div class="xp-bar-container">
+    <div class="xp-bar-header">
+      <span class="level-text" id="levelLabel">Level 1 — Beginner</span>
+      <span id="xpLabel">0 / 100 XP</span>
+    </div>
+    <div class="xp-bar-bg">
+      <div class="xp-bar-fill" id="xpBarFill" style="width: 0%"></div>
+    </div>
+  </div>
+
+  <!-- Badges -->
+  <div class="badges-section">
+    <h3>🎖️ Badges</h3>
+    <div class="badges-grid" id="badgesGrid"></div>
+  </div>
+
+  <!-- Streak Calendar -->
+  <div class="calendar-section">
+    <h3>📅 March 2026 — Activity Heatmap</h3>
+    <div class="calendar-grid" id="calendarGrid"></div>
+  </div>
+
+  <!-- Charts -->
+  <div class="charts-grid">
+    <div class="chart-card">
+      <h3>😊 Mood Trend</h3>
+      <canvas id="moodChart"></canvas>
+    </div>
+    <div class="chart-card">
+      <h3>😴 Sleep Duration</h3>
+      <canvas id="sleepChart"></canvas>
+    </div>
+    <div class="chart-card">
+      <h3>📖 Quran Time</h3>
+      <canvas id="quranChart"></canvas>
+    </div>
+    <div class="chart-card">
+      <h3>📱 Procrastination</h3>
+      <canvas id="procChart"></canvas>
+    </div>
+    <div class="chart-card">
+      <h3>⭐ Daily Score</h3>
+      <canvas id="scoreChart"></canvas>
+    </div>
+    <div class="chart-card">
+      <h3>🕌 Salah Tracker</h3>
+      <canvas id="salahChart"></canvas>
+    </div>
+  </div>
+
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== DATA STORAGE =====
+const STORAGE_KEY = 'laraTracker';
+const MOODS = ['','😭','😢','😐','😊','🔥'];
+const MOOD_LABELS = ['','Awful','Sad','Meh','Good','On Fire'];
+
+function getData() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+  catch { return []; }
+}
+function setData(data) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+// ===== DAILY ISLAMIC LESSONS =====
+const islamicLessons = [
+  {
+    type: 'name',
+    arabic: 'الرَّحْمَٰنُ',
+    translation: 'Ar-Rahman — The Most Gracious',
+    source: 'Name of Allah (#1 of 99)',
+    explanation: 'Ar-Rahman refers to the vastness of Allah\'s mercy that encompasses all of creation. The Prophet ﷺ said: \'Allah divided mercy into 100 parts. He kept 99 parts with Him and sent down 1 part to earth.\' (Bukhari & Muslim)'
+  },
+  {
+    type: 'name',
+    arabic: 'الرَّحِيمُ',
+    translation: 'Ar-Raheem — The Most Merciful',
+    source: 'Name of Allah (#2 of 99)',
+    explanation: 'While Ar-Rahman is general mercy for all, Ar-Raheem is special mercy reserved for believers. \'And He is ever, to the believers, Merciful.\' (Quran 33:43). No matter how many mistakes you\'ve made, His mercy toward those who repent is limitless.'
+  },
+  {
+    type: 'name',
+    arabic: 'الْمَلِكُ',
+    translation: 'Al-Malik — The King, The Sovereign',
+    source: 'Name of Allah (#3 of 99)',
+    explanation: 'Allah is the true King of everything. Every earthly kingdom fades, but His sovereignty is eternal. \'Say: O Allah, Owner of Sovereignty, You give sovereignty to whom You will.\' (Quran 3:26)'
+  },
+  {
+    type: 'name',
+    arabic: 'الْقُدُّوسُ',
+    translation: 'Al-Quddus — The Most Holy',
+    source: 'Name of Allah (#4 of 99)',
+    explanation: 'Al-Quddus means Allah is free from every imperfection, deficiency, and weakness. He is pure in His essence, attributes, and actions. Reflecting on this name helps us strive for purity in our own hearts and deeds.'
+  },
+  {
+    type: 'name',
+    arabic: 'السَّلَامُ',
+    translation: 'As-Salaam — The Source of Peace',
+    source: 'Name of Allah (#5 of 99)',
+    explanation: 'As-Salaam means Allah is free from every imperfection and is the ultimate source of peace. The Prophet ﷺ said after every salah: \'Allahumma antas-salaam, wa minkas-salaam\' — O Allah, You are Peace and from You comes Peace.'
+  },
+  {
+    type: 'name',
+    arabic: 'الْمُؤْمِنُ',
+    translation: 'Al-Mu\'min — The Guardian of Faith',
+    source: 'Name of Allah (#6 of 99)',
+    explanation: 'Al-Mu\'min means the One who gives security, confirms His promises, and affirms the faith of His servants. He protects believers from fear and grants them inner certainty and peace of heart.'
+  },
+  {
+    type: 'name',
+    arabic: 'الْمُهَيْمِنُ',
+    translation: 'Al-Muhaymin — The Protector, The Overseer',
+    source: 'Name of Allah (#7 of 99)',
+    explanation: 'Allah watches over and protects all of creation. Nothing escapes His knowledge or care. He is the guardian who ensures everything is in its rightful place and order.'
+  },
+  {
+    type: 'name',
+    arabic: 'الْعَزِيزُ',
+    translation: 'Al-Azeez — The Almighty',
+    source: 'Name of Allah (#8 of 99)',
+    explanation: 'Al-Azeez means complete power that cannot be overcome. When the world feels unfair, remember Al-Azeez — ultimate justice belongs to Him. \'And Allah is Almighty, Owner of Retribution.\' (Quran 3:4)'
+  },
+  {
+    type: 'name',
+    arabic: 'الْجَبَّارُ',
+    translation: 'Al-Jabbar — The Compeller, The Restorer',
+    source: 'Name of Allah (#9 of 99)',
+    explanation: 'Al-Jabbar has two meanings: the One who compels His will, and the One who mends the broken. He restores the broken-hearted, fixes what is damaged, and heals what seems beyond repair.'
+  },
+  {
+    type: 'name',
+    arabic: 'الْمُتَكَبِّرُ',
+    translation: 'Al-Mutakabbir — The Supreme, The Majestic',
+    source: 'Name of Allah (#10 of 99)',
+    explanation: 'Greatness belongs only to Allah. When humans claim arrogance, it is blameworthy. But Allah alone deserves to be called The Greatest, for He truly is above all creation in majesty and perfection.'
+  },
+  {
+    type: 'name',
+    arabic: 'الْخَالِقُ',
+    translation: 'Al-Khaliq — The Creator',
+    source: 'Name of Allah (#11 of 99)',
+    explanation: 'Allah determines what to create and plans its existence from nothing. Every cell, every star, every thought — all designed by Al-Khaliq. \'He is Allah, the Creator, the Inventor, the Fashioner.\' (Quran 59:24)'
+  },
+  {
+    type: 'name',
+    arabic: 'الْبَارِئُ',
+    translation: 'Al-Bari — The Originator',
+    source: 'Name of Allah (#12 of 99)',
+    explanation: 'Al-Bari brings things into existence, making each creation distinct and separate. He creates diversity and uniqueness — no two fingerprints, no two snowflakes are the same.'
+  },
+  {
+    type: 'name',
+    arabic: 'الْمُصَوِّرُ',
+    translation: 'Al-Musawwir — The Fashioner of Forms',
+    source: 'Name of Allah (#13 of 99)',
+    explanation: 'Al-Musawwir gives each creation its unique shape, form, and appearance. He fashioned you exactly as you are — on purpose, with purpose. \'He forms you in the wombs however He wills.\' (Quran 3:6)'
+  },
+  {
+    type: 'name',
+    arabic: 'الْغَفَّارُ',
+    translation: 'Al-Ghaffar — The Repeatedly Forgiving',
+    source: 'Name of Allah (#14 of 99)',
+    explanation: 'Al-Ghaffar doesn\'t just forgive once — He forgives again and again and again. The form \'Ghaffar\' implies continuous, repeated forgiveness. No matter how many times you fall, He is waiting for you to turn back.'
+  },
+  {
+    type: 'name',
+    arabic: 'الْقَهَّارُ',
+    translation: 'Al-Qahhar — The Subduer, The Irresistible',
+    source: 'Name of Allah (#15 of 99)',
+    explanation: 'Nothing can resist Allah\'s will. Every tyrant, every oppressor, every difficulty — all are subdued before Him. This name gives comfort: no matter how powerful an obstacle seems, Allah is greater.'
+  },
+  {
+    type: 'name',
+    arabic: 'الْوَهَّابُ',
+    translation: 'Al-Wahhab — The Bestower',
+    source: 'Name of Allah (#16 of 99)',
+    explanation: 'Al-Wahhab gives gifts freely, without any expectation of return. Every blessing you have — your eyesight, your family, your breath — is a gift from Al-Wahhab. He gives to who He wills, whenever He wills.'
+  },
+  {
+    type: 'name',
+    arabic: 'الرَّزَّاقُ',
+    translation: 'Ar-Razzaq — The Provider',
+    source: 'Name of Allah (#17 of 99)',
+    explanation: 'Your rizq is already written. The Prophet ﷺ said: \'The soul will not die until it receives all of its rizq, so be moderate in your seeking.\' (Ibn Majah). What\'s meant for you will never miss you.'
+  },
+  {
+    type: 'name',
+    arabic: 'الْفَتَّاحُ',
+    translation: 'Al-Fattah — The Opener',
+    source: 'Name of Allah (#18 of 99)',
+    explanation: 'Al-Fattah opens doors that seem permanently shut. He opens hearts to guidance, opens paths to success, removes barriers. When every door seems closed, ask Al-Fattah to open a way.'
+  },
+  {
+    type: 'name',
+    arabic: 'الْعَلِيمُ',
+    translation: 'Al-Aleem — The All-Knowing',
+    source: 'Name of Allah (#19 of 99)',
+    explanation: 'Allah knows everything — what happened, what is happening, and what will happen. He knows what\'s in your heart before you feel it. This means He knows your struggles, your pain, and your intentions even when nobody else does.'
+  },
+  {
+    type: 'name',
+    arabic: 'الْقَابِضُ',
+    translation: 'Al-Qabid — The Restrainer',
+    source: 'Name of Allah (#20 of 99)',
+    explanation: 'Allah withholds provision, mercy, or ease from whom He wills as a test or redirection. When something is taken away, trust that Al-Qabid has wisdom behind it.'
+  },
+  {
+    type: 'name',
+    arabic: 'الْبَاسِطُ',
+    translation: 'Al-Basit — The Extender',
+    source: 'Name of Allah (#21 of 99)',
+    explanation: 'Allah expands provision, mercy, and ease for whom He wills. He is the One who opens your chest with joy and extends blessings into your life. Ask Him to extend His mercy over you.'
+  },
+  {
+    type: 'name',
+    arabic: 'الْخَافِضُ',
+    translation: 'Al-Khafid — The Humbler',
+    source: 'Name of Allah (#22 of 99)',
+    explanation: 'Allah lowers those who deserve to be humbled — the arrogant, the tyrants, the unjust. No one who oppresses will remain elevated forever. Justice belongs to Allah.'
+  },
+  {
+    type: 'name',
+    arabic: 'الرَّافِعُ',
+    translation: 'Ar-Rafi — The Exalter',
+    source: 'Name of Allah (#23 of 99)',
+    explanation: 'Allah raises whom He wills in status, knowledge, and honor. True elevation comes from Him, not from wealth or fame. \'Allah will raise those who have believed among you and those given knowledge, by degrees.\' (Quran 58:11)'
+  },
+  {
+    type: 'name',
+    arabic: 'الْمُعِزُّ',
+    translation: 'Al-Mu\'izz — The Bestower of Honor',
+    source: 'Name of Allah (#24 of 99)',
+    explanation: 'All honor comes from Allah. Seeking honor through people or possessions is temporary. \'Whoever desires honor — then to Allah belongs all honor.\' (Quran 35:10)'
+  },
+  {
+    type: 'name',
+    arabic: 'الْمُذِلُّ',
+    translation: 'Al-Mudhill — The Humiliator',
+    source: 'Name of Allah (#25 of 99)',
+    explanation: 'Allah humiliates those who are arrogant and refuse guidance. This is a reminder to stay humble — true disgrace comes from turning away from Allah, not from worldly loss.'
+  },
+  {
+    type: 'name',
+    arabic: 'السَّمِيعُ',
+    translation: 'As-Sami — The All-Hearing',
+    source: 'Name of Allah (#26 of 99)',
+    explanation: 'Allah hears every sound, every whisper, every prayer — even the silent ones in your heart. When Khawla complained to the Prophet ﷺ about her husband and Aisha couldn\'t hear from the next room, Allah heard from above seven heavens and revealed Surah Al-Mujadila.'
+  },
+  {
+    type: 'name',
+    arabic: 'الْبَصِيرُ',
+    translation: 'Al-Baseer — The All-Seeing',
+    source: 'Name of Allah (#27 of 99)',
+    explanation: 'Allah sees everything — your good deeds done in secret, your struggles no one knows about, your tears at night. Nothing is hidden from Him. This is both comforting and motivating.'
+  },
+  {
+    type: 'name',
+    arabic: 'الْحَكَمُ',
+    translation: 'Al-Hakam — The Judge',
+    source: 'Name of Allah (#28 of 99)',
+    explanation: 'Allah is the ultimate Judge between all disputes. When you feel wronged and justice seems absent, know that Al-Hakam will settle every account with perfect justice on the Day of Judgment.'
+  },
+  {
+    type: 'name',
+    arabic: 'الْعَدْلُ',
+    translation: 'Al-Adl — The Utterly Just',
+    source: 'Name of Allah (#29 of 99)',
+    explanation: 'Allah never wrongs anyone, even by the weight of an atom. If you do good, it will be multiplied. If you\'re tested, you\'ll be rewarded. His justice is absolute and perfect.'
+  },
+  {
+    type: 'name',
+    arabic: 'اللَّطِيفُ',
+    translation: 'Al-Lateef — The Subtle, The Kind',
+    source: 'Name of Allah (#30 of 99)',
+    explanation: 'Al-Lateef works in ways you can\'t perceive — gently guiding your life, putting the right people in your path, averting harm you never knew about. His kindness is so subtle you might not notice it until you look back.'
+  },
+  {
+    type: 'name',
+    arabic: 'الْخَبِيرُ',
+    translation: 'Al-Khabeer — The All-Aware',
+    source: 'Name of Allah (#31 of 99)',
+    explanation: 'Allah is aware of the innermost details of everything. He knows the real reason behind your actions, the hidden meanings, the things even you can\'t articulate about yourself.'
+  },
+  {
+    type: 'name',
+    arabic: 'الْحَلِيمُ',
+    translation: 'Al-Haleem — The Forbearing',
+    source: 'Name of Allah (#32 of 99)',
+    explanation: 'Al-Haleem means Allah does not rush to punish. He sees the sin but gives time, opportunity after opportunity to repent. His patience with His creation is beyond human comprehension.'
+  },
+  {
+    type: 'name',
+    arabic: 'الْعَظِيمُ',
+    translation: 'Al-Azeem — The Magnificent',
+    source: 'Name of Allah (#33 of 99)',
+    explanation: 'Allah\'s greatness is beyond anything the human mind can conceive. When you feel overwhelmed by your problems, remember how small they are compared to the magnificence of the One who can solve them.'
+  },
+  {
+    type: 'name',
+    arabic: 'الْغَفُورُ',
+    translation: 'Al-Ghafoor — The All-Forgiving',
+    source: 'Name of Allah (#34 of 99)',
+    explanation: 'Al-Ghafoor not only forgives sins but covers them — He won\'t expose your sins or shame you. The Prophet ﷺ said: \'Allah will bring the believer close and cover him, saying: Do you recognize this sin? And the servant will say: Yes, my Lord. Until he acknowledges all his sins, and Allah will say: I concealed them for you in the dunya, and today I forgive them.\' (Bukhari)'
+  },
+  {
+    type: 'name',
+    arabic: 'الشَّكُورُ',
+    translation: 'Ash-Shakoor — The Most Appreciative',
+    source: 'Name of Allah (#35 of 99)',
+    explanation: 'Allah appreciates even the smallest deed and multiplies its reward many times over. A smile is charity. Removing harm from the path is charity. He never lets a good deed go unrewarded.'
+  },
+  {
+    type: 'name',
+    arabic: 'الْعَلِيُّ',
+    translation: 'Al-Ali — The Most High',
+    source: 'Name of Allah (#36 of 99)',
+    explanation: 'Allah is above all creation in His essence, attributes, and power. Nothing is above Him. When the world weighs you down, remember that your Lord is Al-Ali — elevated above every difficulty.'
+  },
+  {
+    type: 'name',
+    arabic: 'الْكَبِيرُ',
+    translation: 'Al-Kabeer — The Most Great',
+    source: 'Name of Allah (#37 of 99)',
+    explanation: 'Allah is greater than any concept, any problem, any fear, any enemy. This is why we say \'Allahu Akbar\' — Allah is Greater. Greater than whatever is distracting you from Him.'
+  },
+  {
+    type: 'name',
+    arabic: 'الْحَفِيظُ',
+    translation: 'Al-Hafeedh — The Preserver',
+    source: 'Name of Allah (#38 of 99)',
+    explanation: 'Allah preserves and protects — He preserves the heavens and earth from collapse, preserves your good deeds, and protects you from unseen dangers. He is the ultimate guardian.'
+  },
+  {
+    type: 'name',
+    arabic: 'الْمُقِيتُ',
+    translation: 'Al-Muqeet — The Sustainer',
+    source: 'Name of Allah (#39 of 99)',
+    explanation: 'Al-Muqeet provides sustenance to every living thing — physical, spiritual, and emotional nourishment. Every heartbeat is sustained by Him.'
+  },
+  {
+    type: 'name',
+    arabic: 'الْحَسِيبُ',
+    translation: 'Al-Haseeb — The Reckoner',
+    source: 'Name of Allah (#40 of 99)',
+    explanation: 'Allah keeps account of everything. This means no good deed is lost and no injustice goes unrecorded. He is sufficient for those who rely on Him.'
+  },
+  {
+    type: 'name',
+    arabic: 'الْجَلِيلُ',
+    translation: 'Al-Jaleel — The Majestic',
+    source: 'Name of Allah (#41 of 99)',
+    explanation: 'Allah possesses absolute majesty and grandeur. His attributes are perfect and complete. Reflecting on His majesty fills the heart with awe and reverence.'
+  },
+  {
+    type: 'name',
+    arabic: 'الْكَرِيمُ',
+    translation: 'Al-Kareem — The Most Generous',
+    source: 'Name of Allah (#42 of 99)',
+    explanation: 'Allah\'s generosity has no limits. He gives without being asked, forgives without being begged, and blesses even those who disobey Him. He is more generous than you can ever imagine.'
+  },
+  {
+    type: 'name',
+    arabic: 'الرَّقِيبُ',
+    translation: 'Ar-Raqeeb — The Watchful',
+    source: 'Name of Allah (#43 of 99)',
+    explanation: 'Allah watches over everything at all times. This isn\'t to scare you — it\'s to comfort you. Someone is always watching over you, caring, protecting. And it motivates you to be your best even when alone.'
+  },
+  {
+    type: 'name',
+    arabic: 'الْمُجِيبُ',
+    translation: 'Al-Mujeeb — The Responsive',
+    source: 'Name of Allah (#44 of 99)',
+    explanation: 'Allah responds to every dua. The response may be giving you what you asked, giving you something better, or protecting you from harm. \'Call upon Me; I will respond to you.\' (Quran 40:60)'
+  },
+  {
+    type: 'name',
+    arabic: 'الْوَاسِعُ',
+    translation: 'Al-Wasi — The All-Encompassing',
+    source: 'Name of Allah (#45 of 99)',
+    explanation: 'Allah\'s mercy, knowledge, and provision encompass everything. Nothing is too big or small for Him. His capacity is limitless — never feel your request is too much.'
+  },
+  {
+    type: 'name',
+    arabic: 'الْحَكِيمُ',
+    translation: 'Al-Hakeem — The Most Wise',
+    source: 'Name of Allah (#46 of 99)',
+    explanation: 'Allah places everything in its right place with perfect wisdom. When something doesn\'t make sense, trust Al-Hakeem. \'Perhaps you hate a thing and it is good for you.\' (Quran 2:216)'
+  },
+  {
+    type: 'name',
+    arabic: 'الْوَدُودُ',
+    translation: 'Al-Wadud — The Most Loving',
+    source: 'Name of Allah (#47 of 99)',
+    explanation: 'Al-Wadud is the source of all love. The Prophet ﷺ said: \'When Allah loves a servant, He calls Jibreel and says: I love so-and-so, so love him. Then acceptance is placed for him on earth.\' (Bukhari & Muslim)'
+  },
+  {
+    type: 'name',
+    arabic: 'الْمَجِيدُ',
+    translation: 'Al-Majeed — The Most Glorious',
+    source: 'Name of Allah (#48 of 99)',
+    explanation: 'Allah combines greatness with generosity and beauty. His actions are noble, His attributes are perfect, and His essence is beyond glory. He is magnificent in every way.'
+  },
+  {
+    type: 'name',
+    arabic: 'الْبَاعِثُ',
+    translation: 'Al-Ba\'ith — The Resurrector',
+    source: 'Name of Allah (#49 of 99)',
+    explanation: 'Allah will raise everyone from death for accountability. This name is a reminder that this life is temporary and that ultimate justice will come in the next life.'
+  },
+  {
+    type: 'name',
+    arabic: 'الشَّهِيدُ',
+    translation: 'Ash-Shaheed — The Witness',
+    source: 'Name of Allah (#50 of 99)',
+    explanation: 'Allah witnesses everything — every kind act, every silent struggle, every hidden tear. When you feel unseen and unappreciated, know that Ash-Shaheed has witnessed it all.'
+  },
+  {
+    type: 'name',
+    arabic: 'الْحَقُّ',
+    translation: 'Al-Haqq — The Absolute Truth',
+    source: 'Name of Allah (#51 of 99)',
+    explanation: 'Allah is the ultimate reality and truth. Everything else may be an illusion or temporary, but He is Al-Haqq — eternally real. Aligning yourself with truth means aligning with Him.'
+  },
+  {
+    type: 'name',
+    arabic: 'الْوَكِيلُ',
+    translation: 'Al-Wakeel — The Trustee, The Disposer of Affairs',
+    source: 'Name of Allah (#52 of 99)',
+    explanation: 'When you entrust your affairs to Allah, He handles them better than you ever could. \'And whoever relies upon Allah — then He is sufficient for him.\' (Quran 65:3)'
+  },
+  {
+    type: 'name',
+    arabic: 'الْقَوِيُّ',
+    translation: 'Al-Qawiyy — The Most Strong',
+    source: 'Name of Allah (#53 of 99)',
+    explanation: 'Allah\'s strength is infinite and never diminishes. He never gets tired. \'Indeed, it is Allah who is the Provider, the Firm Possessor of Strength.\' (Quran 51:58)'
+  },
+  {
+    type: 'name',
+    arabic: 'الْمَتِينُ',
+    translation: 'Al-Mateen — The Firm, The Steadfast',
+    source: 'Name of Allah (#54 of 99)',
+    explanation: 'Allah is firm in His power — His strength never wavers or decreases. He is unshakable. Lean on Al-Mateen when you feel your own strength running out.'
+  },
+  {
+    type: 'name',
+    arabic: 'الْوَلِيُّ',
+    translation: 'Al-Waliyy — The Protecting Friend',
+    source: 'Name of Allah (#55 of 99)',
+    explanation: 'Allah is the ultimate ally of the believers. He supports, protects, and guides them. \'Allah is the ally of those who believe. He brings them out from darkness into light.\' (Quran 2:257)'
+  },
+  {
+    type: 'name',
+    arabic: 'الْحَمِيدُ',
+    translation: 'Al-Hameed — The Praiseworthy',
+    source: 'Name of Allah (#56 of 99)',
+    explanation: 'Allah is deserving of all praise in every situation — ease and hardship. Saying \'Alhamdulillah\' is acknowledging that He is Al-Hameed, worthy of gratitude at all times.'
+  },
+  {
+    type: 'name',
+    arabic: 'الْمُحْصِي',
+    translation: 'Al-Muhsi — The Accounter',
+    source: 'Name of Allah (#57 of 99)',
+    explanation: 'Allah counts and knows everything in exact detail — every leaf that falls, every drop of rain, every deed small or large. Nothing is approximate with Him; everything is precisely known.'
+  },
+  {
+    type: 'name',
+    arabic: 'الْمُبْدِئُ',
+    translation: 'Al-Mubdi — The Originator',
+    source: 'Name of Allah (#58 of 99)',
+    explanation: 'Allah originates creation from nothing — no blueprint, no template. He creates from pure will and power. Everything that exists began with His command: \'Be.\''
+  },
+  {
+    type: 'name',
+    arabic: 'الْمُعِيدُ',
+    translation: 'Al-Mu\'eed — The Restorer',
+    source: 'Name of Allah (#59 of 99)',
+    explanation: 'Allah restores and repeats creation. Just as He created you the first time, He will bring you back. \'As We began the first creation, We will repeat it.\' (Quran 21:104)'
+  },
+  {
+    type: 'name',
+    arabic: 'الْمُحْيِي',
+    translation: 'Al-Muhyi — The Giver of Life',
+    source: 'Name of Allah (#60 of 99)',
+    explanation: 'Allah gives life to everything — to the earth after it\'s dead, to hearts after they\'ve hardened, to hope after despair. If your iman feels dead, ask Al-Muhyi to revive it.'
+  },
+  {
+    type: 'name',
+    arabic: 'الْمُمِيتُ',
+    translation: 'Al-Mumeet — The Bringer of Death',
+    source: 'Name of Allah (#61 of 99)',
+    explanation: 'Allah decrees death for every living thing. This is a reminder that this world is temporary. Use this awareness to prioritize what truly matters and prepare for what\'s eternal.'
+  },
+  {
+    type: 'name',
+    arabic: 'الْحَيُّ',
+    translation: 'Al-Hayy — The Ever-Living',
+    source: 'Name of Allah (#62 of 99)',
+    explanation: 'Allah is alive in the most perfect, eternal sense — He never sleeps, never tires, never ceases. \'Allah! There is no god but He, the Ever-Living, the Self-Subsisting.\' (Quran 2:255)'
+  },
+  {
+    type: 'name',
+    arabic: 'الْقَيُّومُ',
+    translation: 'Al-Qayyum — The Self-Sustaining',
+    source: 'Name of Allah (#63 of 99)',
+    explanation: 'Al-Qayyum sustains everything in existence. Without Him, nothing would exist for even a moment. He needs nothing, but everything needs Him.'
+  },
+  {
+    type: 'name',
+    arabic: 'الْوَاجِدُ',
+    translation: 'Al-Wajid — The Finder',
+    source: 'Name of Allah (#64 of 99)',
+    explanation: 'Allah finds whatever He wills and nothing is lost to Him. He is never in need and always has what He requires. He finds you in your darkest moments.'
+  },
+  {
+    type: 'name',
+    arabic: 'الْمَاجِدُ',
+    translation: 'Al-Majid — The Noble, The Illustrious',
+    source: 'Name of Allah (#65 of 99)',
+    explanation: 'Allah is noble and generous beyond measure. His nobility is in His essence, His actions, and His treatment of creation.'
+  },
+  {
+    type: 'name',
+    arabic: 'الْوَاحِدُ',
+    translation: 'Al-Wahid — The One',
+    source: 'Name of Allah (#66 of 99)',
+    explanation: 'Allah is absolutely One — unique in His being, attributes, and right to be worshipped. There is nothing like Him. This simplifies life: one God, one purpose, one direction.'
+  },
+  {
+    type: 'name',
+    arabic: 'الْأَحَدُ',
+    translation: 'Al-Ahad — The Unique, The Indivisible',
+    source: 'Name of Allah (#67 of 99)',
+    explanation: 'Al-Ahad emphasizes Allah\'s absolute uniqueness — He cannot be divided, has no partner, no equal, no comparison. \'Say: He is Allah, the One.\' (Quran 112:1)'
+  },
+  {
+    type: 'name',
+    arabic: 'الصَّمَدُ',
+    translation: 'As-Samad — The Eternal Refuge',
+    source: 'Name of Allah (#68 of 99)',
+    explanation: 'As-Samad is the One everyone turns to in need. He is complete, perfect, and self-sufficient. All of creation depends on Him while He depends on nothing. When you have no one else to turn to, you always have As-Samad.'
+  },
+  {
+    type: 'name',
+    arabic: 'الْقَادِرُ',
+    translation: 'Al-Qadir — The All-Powerful',
+    source: 'Name of Allah (#69 of 99)',
+    explanation: 'Allah has power over all things without effort or limitation. Changing your situation, curing the incurable, making the impossible possible — all of it is easy for Al-Qadir.'
+  },
+  {
+    type: 'name',
+    arabic: 'الْمُقْتَدِرُ',
+    translation: 'Al-Muqtadir — The Omnipotent',
+    source: 'Name of Allah (#70 of 99)',
+    explanation: 'Allah\'s power is absolute and He exercises it as He wills. No force in the universe can challenge or limit His power.'
+  },
+  {
+    type: 'name',
+    arabic: 'الْمُقَدِّمُ',
+    translation: 'Al-Muqaddim — The Expediter',
+    source: 'Name of Allah (#71 of 99)',
+    explanation: 'Allah brings forward whom He wills — in time, status, or opportunity. When your moment arrives, no one can delay it.'
+  },
+  {
+    type: 'name',
+    arabic: 'الْمُؤَخِّرُ',
+    translation: 'Al-Mu\'akhkhir — The Delayer',
+    source: 'Name of Allah (#72 of 99)',
+    explanation: 'Allah delays what He wills with wisdom. If something hasn\'t happened yet, Al-Mu\'akhkhir has a reason. His timing is always better than yours.'
+  },
+  {
+    type: 'name',
+    arabic: 'الْأَوَّلُ',
+    translation: 'Al-Awwal — The First',
+    source: 'Name of Allah (#73 of 99)',
+    explanation: 'Allah existed before everything — before time, space, and creation. There was nothing before Him. This name puts everything in perspective: He was there before your problem existed and will be there after it\'s gone.'
+  },
+  {
+    type: 'name',
+    arabic: 'الْآخِرُ',
+    translation: 'Al-Akhir — The Last',
+    source: 'Name of Allah (#74 of 99)',
+    explanation: 'Allah will remain after everything ceases to exist. When everything in this world perishes, He remains. This is why investing in your relationship with Him is the only permanent investment.'
+  },
+  {
+    type: 'name',
+    arabic: 'الظَّاهِرُ',
+    translation: 'Az-Zahir — The Manifest',
+    source: 'Name of Allah (#75 of 99)',
+    explanation: 'Allah\'s existence is evident through His creation. Look at the sky, the mountains, your own body — His signs are everywhere. \'We will show them Our signs in the horizons and within themselves.\' (Quran 41:53)'
+  },
+  {
+    type: 'name',
+    arabic: 'الْبَاطِنُ',
+    translation: 'Al-Batin — The Hidden',
+    source: 'Name of Allah (#76 of 99)',
+    explanation: 'Allah\'s essence is hidden from human perception in this life. No vision can encompass Him. This teaches humility — we worship what we cannot fully comprehend, and that\'s the beauty of faith.'
+  },
+  {
+    type: 'name',
+    arabic: 'الْوَالِي',
+    translation: 'Al-Wali — The Governor',
+    source: 'Name of Allah (#77 of 99)',
+    explanation: 'Allah governs all affairs of creation. Everything operates under His command and management. No event occurs without His permission and decree.'
+  },
+  {
+    type: 'name',
+    arabic: 'الْمُتَعَالِي',
+    translation: 'Al-Muta\'ali — The Most Exalted',
+    source: 'Name of Allah (#78 of 99)',
+    explanation: 'Allah is exalted above everything His creation can imagine. Whatever you think Allah is — He is greater. Human minds cannot contain His reality.'
+  },
+  {
+    type: 'name',
+    arabic: 'الْبَرُّ',
+    translation: 'Al-Barr — The Source of Goodness',
+    source: 'Name of Allah (#79 of 99)',
+    explanation: 'Allah is the source of all goodness, kindness, and virtue. Every good thing in your life traces back to Al-Barr. He is good to His creation even when they are ungrateful.'
+  },
+  {
+    type: 'name',
+    arabic: 'التَّوَّابُ',
+    translation: 'At-Tawwab — The Acceptor of Repentance',
+    source: 'Name of Allah (#80 of 99)',
+    explanation: 'At-Tawwab actively turns toward His servant, making it easy for them to repent. \'Then He turned to them so they could repent.\' (Quran 9:118). No sin is too big and no number of times is too many.'
+  },
+  {
+    type: 'name',
+    arabic: 'الْمُنْتَقِمُ',
+    translation: 'Al-Muntaqim — The Avenger',
+    source: 'Name of Allah (#81 of 99)',
+    explanation: 'Allah takes retribution against those who persist in injustice and oppression. This name is a warning to oppressors and a comfort to the oppressed — justice will come.'
+  },
+  {
+    type: 'name',
+    arabic: 'الْعَفُوُّ',
+    translation: 'Al-Afuww — The Pardoner',
+    source: 'Name of Allah (#82 of 99)',
+    explanation: 'Al-Afuww doesn\'t just forgive — He erases the sin completely, as if it never happened. The Prophet ﷺ taught Aisha to say on Laylatul Qadr: \'Allahumma innaka afuwwun tuhibbul afwa fa\'fu anni.\' O Allah, You are the Pardoner and You love to pardon, so pardon me.'
+  },
+  {
+    type: 'name',
+    arabic: 'الرَّؤُوفُ',
+    translation: 'Ar-Ra\'uf — The Most Kind',
+    source: 'Name of Allah (#83 of 99)',
+    explanation: 'Ar-Ra\'uf is an intense form of mercy — deep, tender compassion. \'Indeed Allah, to the people, is Kind and Merciful.\' (Quran 2:143). His kindness is gentler and more personal than we can imagine.'
+  },
+  {
+    type: 'name',
+    arabic: 'مَالِكُ الْمُلْكِ',
+    translation: 'Malik-ul-Mulk — Owner of All Sovereignty',
+    source: 'Name of Allah (#84 of 99)',
+    explanation: 'All authority and dominion belong to Allah. He gives power to whom He wills and removes it from whom He wills. No king, president, or ruler holds power except by Allah\'s permission.'
+  },
+  {
+    type: 'name',
+    arabic: 'ذُو الْجَلَالِ وَالْإِكْرَامِ',
+    translation: 'Dhul-Jalali wal-Ikram — Lord of Majesty and Generosity',
+    source: 'Name of Allah (#85 of 99)',
+    explanation: 'Allah combines awe-inspiring majesty with boundless generosity. He is to be feared out of reverence and loved out of gratitude. The Prophet ﷺ said: \'Persist in saying: Ya Dhal-Jalali wal-Ikram.\' (Tirmidhi)'
+  },
+  {
+    type: 'name',
+    arabic: 'الْمُقْسِطُ',
+    translation: 'Al-Muqsit — The Equitable',
+    source: 'Name of Allah (#86 of 99)',
+    explanation: 'Allah establishes justice with perfect balance. He never wrongs anyone and ensures that every being gets exactly what it deserves — in this life or the next.'
+  },
+  {
+    type: 'name',
+    arabic: 'الْجَامِعُ',
+    translation: 'Al-Jami — The Gatherer',
+    source: 'Name of Allah (#87 of 99)',
+    explanation: 'Allah will gather all of humanity on the Day of Judgment. No one can escape. This name also means He gathers what is scattered — He can bring together broken relationships, lost hopes, and scattered dreams.'
+  },
+  {
+    type: 'name',
+    arabic: 'الْغَنِيُّ',
+    translation: 'Al-Ghaniyy — The Self-Sufficient',
+    source: 'Name of Allah (#88 of 99)',
+    explanation: 'Allah needs absolutely nothing from anyone. Your prayers, your fasting, your good deeds — they don\'t benefit Him. They benefit you. He is rich beyond need, and everything else is in need of Him.'
+  },
+  {
+    type: 'name',
+    arabic: 'الْمُغْنِي',
+    translation: 'Al-Mughni — The Enricher',
+    source: 'Name of Allah (#89 of 99)',
+    explanation: 'Allah enriches whom He wills — with wealth, knowledge, contentment, or faith. True richness is richness of the soul. The Prophet ﷺ said: \'Richness is not having many possessions, but richness is being content.\' (Bukhari)'
+  },
+  {
+    type: 'name',
+    arabic: 'الْمَانِعُ',
+    translation: 'Al-Mani — The Withholder',
+    source: 'Name of Allah (#90 of 99)',
+    explanation: 'Allah prevents what He wills — sometimes withholding something is the greatest blessing. That job you didn\'t get, that person who left — Al-Mani may have been protecting you.'
+  },
+  {
+    type: 'name',
+    arabic: 'الضَّارُّ',
+    translation: 'Ad-Darr — The Distresser',
+    source: 'Name of Allah (#91 of 99)',
+    explanation: 'Allah allows harm to reach whom He wills as a test or purification. No harm reaches you except by His permission, and even in harm there is hidden wisdom and growth.'
+  },
+  {
+    type: 'name',
+    arabic: 'النَّافِعُ',
+    translation: 'An-Nafi — The Benefactor',
+    source: 'Name of Allah (#92 of 99)',
+    explanation: 'All benefit ultimately comes from Allah. A medicine only heals because He allows it. A person only helps you because He placed them in your life. Recognize the true source.'
+  },
+  {
+    type: 'name',
+    arabic: 'النُّورُ',
+    translation: 'An-Nur — The Light',
+    source: 'Name of Allah (#93 of 99)',
+    explanation: 'Allah is the light of the heavens and earth. He guides hearts from darkness to light, from confusion to clarity. \'Allah is the Light of the heavens and the earth.\' (Quran 24:35)'
+  },
+  {
+    type: 'name',
+    arabic: 'الْهَادِي',
+    translation: 'Al-Hadi — The Guide',
+    source: 'Name of Allah (#94 of 99)',
+    explanation: 'Allah guides whom He wills to the straight path. Guidance is the greatest blessing — greater than health, wealth, or beauty. Thank Him daily for the gift of Islam and ask Him to keep you guided.'
+  },
+  {
+    type: 'name',
+    arabic: 'الْبَدِيعُ',
+    translation: 'Al-Badi — The Incomparable Originator',
+    source: 'Name of Allah (#95 of 99)',
+    explanation: 'Allah creates in ways no one has seen before — without any prior model. Every creation is an original masterpiece. He innovates existence itself.'
+  },
+  {
+    type: 'name',
+    arabic: 'الْبَاقِي',
+    translation: 'Al-Baqi — The Everlasting',
+    source: 'Name of Allah (#96 of 99)',
+    explanation: 'Allah is eternal — He has no end. Everything else will perish. \'Everyone upon the earth will perish, and there will remain the Face of your Lord, Owner of Majesty and Honor.\' (Quran 55:26-27)'
+  },
+  {
+    type: 'name',
+    arabic: 'الْوَارِثُ',
+    translation: 'Al-Warith — The Inheritor',
+    source: 'Name of Allah (#97 of 99)',
+    explanation: 'After all creation perishes, Allah inherits everything. \'Indeed, it is We who give life and cause death, and We are the Inheritor.\' (Quran 15:23). This reminds you: nothing you own is truly yours.'
+  },
+  {
+    type: 'name',
+    arabic: 'الرَّشِيدُ',
+    translation: 'Ar-Rasheed — The Guide to the Right Path',
+    source: 'Name of Allah (#98 of 99)',
+    explanation: 'Allah directs all affairs with perfect wisdom, guiding creation toward what is right. He never errs in His judgment or direction. Following His guidance is always the wisest choice.'
+  },
+  {
+    type: 'name',
+    arabic: 'الصَّبُورُ',
+    translation: 'As-Sabur — The Most Patient',
+    source: 'Name of Allah (#99 of 99)',
+    explanation: 'Allah is never in a rush to punish. The Prophet ﷺ said: \'No one is more patient over hurtful words than Allah. They attribute to Him a son, yet He still grants them health and provision.\' (Bukhari)'
+  },
+  {
+    type: 'ayah',
+    arabic: 'فَإِنَّ مَعَ الْعُسْرِ يُسْرًا ۝ إِنَّ مَعَ الْعُسْرِ يُسْرًا',
+    translation: '"For indeed, with hardship comes ease. Indeed, with hardship comes ease."',
+    source: 'Surah Ash-Sharh (94:5-6)',
+    explanation: 'Allah repeats this twice for emphasis. The scholars say one hardship can never overcome two eases. Ibn Taymiyyah said: \'The hardship is surrounded by two eases, so it will never prevail.\''
+  },
+  {
+    type: 'ayah',
+    arabic: 'وَمَن يَتَوَكَّلْ عَلَى اللَّهِ فَهُوَ حَسْبُهُ',
+    translation: '"And whoever relies upon Allah — then He is sufficient for him."',
+    source: 'Surah At-Talaq (65:3)',
+    explanation: 'Tawakkul doesn\'t mean doing nothing — it means doing your best, then leaving the outcome to Allah. The Prophet ﷺ said: \'Tie your camel, then put your trust in Allah.\' (Tirmidhi)'
+  },
+  {
+    type: 'ayah',
+    arabic: 'وَلَا تَيْأَسُوا مِن رَّوْحِ اللَّهِ',
+    translation: '"And do not despair of the mercy of Allah."',
+    source: 'Surah Yusuf (12:87)',
+    explanation: 'Ya\'qub (AS) said this after losing Yusuf for years. Despite immense grief, he never lost hope. He eventually reunited with both sons — Allah\'s plan was greater than anything he imagined.'
+  },
+  {
+    type: 'ayah',
+    arabic: 'إِنَّ اللَّهَ لَا يُغَيِّرُ مَا بِقَوْمٍ حَتَّىٰ يُغَيِّرُوا مَا بِأَنفُسِهِمْ',
+    translation: '"Indeed, Allah will not change the condition of a people until they change what is in themselves."',
+    source: 'Surah Ar-Ra\'d (13:11)',
+    explanation: 'This is the foundation of self-improvement in Islam. Start with your heart, intentions, and habits — and watch how Allah transforms your life.'
+  },
+  {
+    type: 'ayah',
+    arabic: 'وَإِذَا سَأَلَكَ عِبَادِي عَنِّي فَإِنِّي قَرِيبٌ',
+    translation: '"And when My servants ask you about Me — indeed I am near."',
+    source: 'Surah Al-Baqarah (2:186)',
+    explanation: 'Allah didn\'t say \'Tell them I am near\' — He responded directly. There is no intermediary between you and Allah. Every dua is heard, even the silent ones.'
+  },
+  {
+    type: 'ayah',
+    arabic: 'وَعَسَىٰ أَن تَكْرَهُوا شَيْئًا وَهُوَ خَيْرٌ لَّكُمْ',
+    translation: '"Perhaps you hate a thing and it is good for you."',
+    source: 'Surah Al-Baqarah (2:216)',
+    explanation: 'That rejection, that closed door — it might be Allah protecting you from something worse, or redirecting you to something better. Trust His knowledge over your feelings.'
+  },
+  {
+    type: 'ayah',
+    arabic: 'لَا يُكَلِّفُ اللَّهُ نَفْسًا إِلَّا وُسْعَهَا',
+    translation: '"Allah does not burden a soul beyond that it can bear."',
+    source: 'Surah Al-Baqarah (2:286)',
+    explanation: 'Whatever you\'re going through right now — Allah knows you can handle it. He wouldn\'t have given it to you otherwise. This is His trust in your strength.'
+  },
+  {
+    type: 'ayah',
+    arabic: 'أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ',
+    translation: '"Verily, in the remembrance of Allah do hearts find rest."',
+    source: 'Surah Ar-Ra\'d (13:28)',
+    explanation: 'Anxiety, restlessness, emptiness — the cure is dhikr. Not just moving your tongue, but truly remembering Allah with your heart. Peace is found in His remembrance.'
+  },
+  {
+    type: 'ayah',
+    arabic: 'وَنَحْنُ أَقْرَبُ إِلَيْهِ مِنْ حَبْلِ الْوَرِيدِ',
+    translation: '"And We are closer to him than his jugular vein."',
+    source: 'Surah Qaf (50:16)',
+    explanation: 'Allah is closer to you than you are to yourself. He knows every thought, every emotion, every struggle. You are never truly alone.'
+  },
+  {
+    type: 'ayah',
+    arabic: 'ادْعُونِي أَسْتَجِبْ لَكُمْ',
+    translation: '"Call upon Me; I will respond to you."',
+    source: 'Surah Ghafir (40:60)',
+    explanation: 'This is a direct promise from Allah — not \'I might respond\' but \'I WILL respond.\' The response may be what you asked for, something better, or protection from harm.'
+  },
+  {
+    type: 'ayah',
+    arabic: 'وَمَن يَتَّقِ اللَّهَ يَجْعَل لَّهُ مَخْرَجًا',
+    translation: '"And whoever fears Allah — He will make for him a way out."',
+    source: 'Surah At-Talaq (65:2)',
+    explanation: 'Taqwa (God-consciousness) is the key to every exit from difficulty. When you prioritize Allah, He creates solutions you never imagined.'
+  },
+  {
+    type: 'ayah',
+    arabic: 'وَاصْبِرُوا ۚ إِنَّ اللَّهَ مَعَ الصَّابِرِينَ',
+    translation: '"And be patient. Indeed, Allah is with the patient."',
+    source: 'Surah Al-Anfal (8:46)',
+    explanation: 'Allah doesn\'t just reward patience — He accompanies the patient. His \'being with\' them means special support, guidance, and protection.'
+  },
+  {
+    type: 'ayah',
+    arabic: 'إِنَّ مَعَ الْعُسْرِ يُسْرًا',
+    translation: '"Indeed, with hardship comes ease."',
+    source: 'Surah Ash-Sharh (94:6)',
+    explanation: 'The Arabic says \'with\' not \'after\' — meaning ease exists alongside your difficulty. Look for the blessings during the test, not just after it.'
+  },
+  {
+    type: 'ayah',
+    arabic: 'لَئِن شَكَرْتُمْ لَأَزِيدَنَّكُمْ',
+    translation: '"If you are grateful, I will surely increase you."',
+    source: 'Surah Ibrahim (14:7)',
+    explanation: 'Gratitude is directly linked to increase — in blessings, in peace, in provision. This tracker\'s gratitude section isn\'t just for reflection, it\'s a means of barakah.'
+  },
+  {
+    type: 'ayah',
+    arabic: 'رَبِّ اشْرَحْ لِي صَدْرِي',
+    translation: '"My Lord, expand for me my chest [with assurance]."',
+    source: 'Surah Ta-Ha (20:25)',
+    explanation: 'Musa (AS) made this dua before one of the hardest missions ever. When you feel overwhelmed before a task, use this dua. Ask Allah to make your heart spacious and confident.'
+  },
+  {
+    type: 'ayah',
+    arabic: 'رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ',
+    translation: '"Our Lord, give us in this world good and in the Hereafter good and protect us from the punishment of the Fire."',
+    source: 'Surah Al-Baqarah (2:201)',
+    explanation: 'The most comprehensive dua in the Quran — covers both worlds. The Prophet ﷺ used to recite this dua more than any other. (Bukhari & Muslim)'
+  },
+  {
+    type: 'ayah',
+    arabic: 'وَلَسَوْفَ يُعْطِيكَ رَبُّكَ فَتَرْضَىٰ',
+    translation: '"And your Lord is going to give you, and you will be satisfied."',
+    source: 'Surah Ad-Duha (93:5)',
+    explanation: 'A promise from Allah to the Prophet ﷺ and to every believer who strives. What Allah has planned for you will make you content — be patient.'
+  },
+  {
+    type: 'ayah',
+    arabic: 'فَاذْكُرُونِي أَذْكُرْكُمْ',
+    translation: '"So remember Me; I will remember you."',
+    source: 'Surah Al-Baqarah (2:152)',
+    explanation: 'When you remember Allah, He remembers you. The Creator of the universe mentions you by name to the angels. What greater honor could there be?'
+  },
+  {
+    type: 'ayah',
+    arabic: 'يَا أَيُّهَا الَّذِينَ آمَنُوا اسْتَعِينُوا بِالصَّبْرِ وَالصَّلَاةِ',
+    translation: '"O you who believe, seek help through patience and prayer."',
+    source: 'Surah Al-Baqarah (2:153)',
+    explanation: 'When life gets tough, Allah prescribes two remedies: sabr and salah. Not therapy (though that\'s fine too), not money — patience and prayer. These are the first aid of the soul.'
+  },
+  {
+    type: 'ayah',
+    arabic: 'وَلَا تَحْسَبَنَّ اللَّهَ غَافِلًا عَمَّا يَعْمَلُ الظَّالِمُونَ',
+    translation: '"And never think that Allah is unaware of what the wrongdoers do."',
+    source: 'Surah Ibrahim (14:42)',
+    explanation: 'When you see injustice and feel helpless, know that Allah is fully aware. He is never negligent. Justice will come, either in this life or the next.'
+  },
+  {
+    type: 'ayah',
+    arabic: 'وَاللَّهُ يُحِبُّ الصَّابِرِينَ',
+    translation: '"And Allah loves the patient."',
+    source: 'Surah Aal-Imran (3:146)',
+    explanation: 'Patience doesn\'t just earn reward — it earns Allah\'s love. When you\'re enduring something difficult, know that in that very moment, you are earning His love.'
+  },
+  {
+    type: 'ayah',
+    arabic: 'قُلْ يَا عِبَادِيَ الَّذِينَ أَسْرَفُوا عَلَىٰ أَنفُسِهِمْ لَا تَقْنَطُوا مِن رَّحْمَةِ اللَّهِ',
+    translation: '"Say: O My servants who have transgressed against themselves, do not despair of the mercy of Allah."',
+    source: 'Surah Az-Zumar (39:53)',
+    explanation: 'Allah calls them \'My servants\' — even after they transgressed. He didn\'t disown them. And He says His mercy covers ALL sins. This is the most hopeful ayah in the Quran for sinners seeking repentance.'
+  },
+  {
+    type: 'ayah',
+    arabic: 'وَمَا خَلَقْتُ الْجِنَّ وَالْإِنسَ إِلَّا لِيَعْبُدُونِ',
+    translation: '"And I did not create the jinn and mankind except to worship Me."',
+    source: 'Surah Adh-Dhariyat (51:56)',
+    explanation: 'Your purpose is clear. Everything else — career, relationships, wealth — is secondary. When life feels purposeless, return to this ayah.'
+  },
+  {
+    type: 'ayah',
+    arabic: 'حَسْبُنَا اللَّهُ وَنِعْمَ الْوَكِيلُ',
+    translation: '"Sufficient for us is Allah, and He is the best Disposer of affairs."',
+    source: 'Surah Aal-Imran (3:173)',
+    explanation: 'Ibrahim (AS) said this when thrown into fire. The Prophet ﷺ and companions said it when outnumbered. When everything is against you, this phrase is your shield.'
+  },
+  {
+    type: 'ayah',
+    arabic: 'وَلَنَبْلُوَنَّكُم بِشَيْءٍ مِّنَ الْخَوْفِ وَالْجُوعِ وَنَقْصٍ مِّنَ الْأَمْوَالِ وَالْأَنفُسِ وَالثَّمَرَاتِ ۗ وَبَشِّرِ الصَّابِرِينَ',
+    translation: '"And We will surely test you with something of fear and hunger and a loss of wealth and lives and fruits, but give good tidings to the patient."',
+    source: 'Surah Al-Baqarah (2:155)',
+    explanation: 'Tests are guaranteed — Allah says \'We WILL test you.\' The question isn\'t whether you\'ll be tested, but how you\'ll respond. The patient are given \'good tidings\' (bushra) — a VIP reward.'
+  },
+  {
+    type: 'ayah',
+    arabic: 'رَبِّ إِنِّي لِمَا أَنزَلْتَ إِلَيَّ مِنْ خَيْرٍ فَقِيرٌ',
+    translation: '"My Lord, indeed I am, for whatever good You would send down to me, in need."',
+    source: 'Surah Al-Qasas (28:24)',
+    explanation: 'Musa (AS) said this when he was homeless, hungry, and alone in a foreign land. Shortly after, Allah gave him shelter, a wife, and a family. Express your need to Allah, and watch Him provide.'
+  },
+  {
+    type: 'ayah',
+    arabic: 'اللَّهُ لَطِيفٌ بِعِبَادِهِ',
+    translation: '"Allah is Subtle with His servants."',
+    source: 'Surah Ash-Shura (42:19)',
+    explanation: 'Allah works behind the scenes in ways you can\'t see. That \'random\' meeting, that unexpected opportunity — it was all arranged by Al-Lateef.'
+  },
+  {
+    type: 'ayah',
+    arabic: 'وَلَا تَهِنُوا وَلَا تَحْزَنُوا وَأَنتُمُ الْأَعْلَوْنَ إِن كُنتُم مُّؤْمِنِينَ',
+    translation: '"So do not weaken and do not grieve, and you will be superior if you are true believers."',
+    source: 'Surah Aal-Imran (3:139)',
+    explanation: 'Allah tells the believers: don\'t be weak, don\'t be sad. Your faith makes you strong. Even when circumstances look bad, believers are always in a position of honor.'
+  },
+  {
+    type: 'ayah',
+    arabic: 'وَقُل رَّبِّ زِدْنِي عِلْمًا',
+    translation: '"And say: My Lord, increase me in knowledge."',
+    source: 'Surah Ta-Ha (20:114)',
+    explanation: 'The only thing Allah told the Prophet ﷺ to ask for more of is knowledge — not wealth, not power, not beauty. Knowledge is the most valuable asset.'
+  },
+  {
+    type: 'ayah',
+    arabic: 'إِنَّ اللَّهَ مَعَ الَّذِينَ اتَّقَوا وَّالَّذِينَ هُم مُّحْسِنُونَ',
+    translation: '"Indeed, Allah is with those who fear Him and those who are doers of good."',
+    source: 'Surah An-Nahl (16:128)',
+    explanation: 'Two qualities guarantee Allah\'s companionship: taqwa (consciousness of Allah) and ihsan (excellence). Strive for both.'
+  },
+  {
+    type: 'ayah',
+    arabic: 'وَإِن تَعُدُّوا نِعْمَةَ اللَّهِ لَا تُحْصُوهَا',
+    translation: '"And if you should count the favors of Allah, you could not enumerate them."',
+    source: 'Surah Ibrahim (14:34)',
+    explanation: 'Your heartbeat, your sight, your breath, your sanity — each one is a blessing you can\'t repay. Counting blessings is literally impossible because there are too many.'
+  },
+  {
+    type: 'ayah',
+    arabic: 'يُرِيدُ اللَّهُ بِكُمُ الْيُسْرَ وَلَا يُرِيدُ بِكُمُ الْعُسْرَ',
+    translation: '"Allah intends for you ease and does not intend for you hardship."',
+    source: 'Surah Al-Baqarah (2:185)',
+    explanation: 'Islam was designed to be practical and doable. If something in the religion feels impossibly hard, you may be making it harder than Allah intended. He wants ease for you.'
+  },
+  {
+    type: 'ayah',
+    arabic: 'وَمَن يُؤْمِن بِاللَّهِ يَهْدِ قَلْبَهُ',
+    translation: '"And whoever believes in Allah — He will guide his heart."',
+    source: 'Surah At-Taghabun (64:11)',
+    explanation: 'When difficulty hits a believer, Allah guides their heart to patience and acceptance. The heart finds peace not because the problem is gone, but because faith carries it through.'
+  },
+  {
+    type: 'ayah',
+    arabic: 'وَلَقَدْ يَسَّرْنَا الْقُرْآنَ لِلذِّكْرِ فَهَلْ مِن مُّدَّكِرٍ',
+    translation: '"And We have certainly made the Quran easy for remembrance, so is there any who will remember?"',
+    source: 'Surah Al-Qamar (54:17)',
+    explanation: 'Allah made the Quran accessible — you don\'t need to be a scholar to benefit from it. Even reading one ayah a day with reflection counts. The door is wide open.'
+  },
+  {
+    type: 'ayah',
+    arabic: 'وَمَا تَوْفِيقِي إِلَّا بِاللَّهِ',
+    translation: '"And my success is not but through Allah."',
+    source: 'Surah Hud (11:88)',
+    explanation: 'Every achievement, every win, every success — the credit goes to Allah. This keeps you humble in success and hopeful in failure, because next time He may grant you tawfeeq.'
+  },
+  {
+    type: 'ayah',
+    arabic: 'كُلُّ نَفْسٍ ذَائِقَةُ الْمَوْتِ',
+    translation: '"Every soul will taste death."',
+    source: 'Surah Aal-Imran (3:185)',
+    explanation: 'A sobering reminder that motivates action. Don\'t waste time on what doesn\'t matter. Prioritize your akhirah, your relationships, and your purpose.'
+  },
+  {
+    type: 'ayah',
+    arabic: 'قُلْ هُوَ اللَّهُ أَحَدٌ',
+    translation: '"Say: He is Allah, the One."',
+    source: 'Surah Al-Ikhlas (112:1)',
+    explanation: 'This surah equals one-third of the Quran in reward. It summarizes the core of Islamic theology in four short ayat. The Prophet ﷺ said: \'By the One in whose Hand is my soul, it is equal to one-third of the Quran.\' (Bukhari)'
+  },
+  {
+    type: 'ayah',
+    arabic: 'وَتُوبُوا إِلَى اللَّهِ جَمِيعًا أَيُّهَ الْمُؤْمِنُونَ لَعَلَّكُمْ تُفْلِحُونَ',
+    translation: '"And turn to Allah in repentance, all of you, O believers, that you might succeed."',
+    source: 'Surah An-Nur (24:31)',
+    explanation: 'Repentance isn\'t just for major sins — it\'s a daily habit for believers. The Prophet ﷺ himself asked for forgiveness 70-100 times a day. Success in both worlds is tied to tawbah.'
+  },
+  {
+    type: 'ayah',
+    arabic: 'وَهُوَ مَعَكُمْ أَيْنَ مَا كُنتُمْ',
+    translation: '"And He is with you wherever you are."',
+    source: 'Surah Al-Hadid (57:4)',
+    explanation: 'Whether you\'re in your room at 3am or in a crowd of thousands, Allah is with you. His knowledge, protection, and awareness accompany you everywhere.'
+  },
+  {
+    type: 'ayah',
+    arabic: 'وَنُنَزِّلُ مِنَ الْقُرْآنِ مَا هُوَ شِفَاءٌ وَرَحْمَةٌ لِّلْمُؤْمِنِينَ',
+    translation: '"And We send down of the Quran that which is healing and mercy for the believers."',
+    source: 'Surah Al-Isra (17:82)',
+    explanation: 'The Quran is literally described as \'shifa\' — healing. Not just spiritual but emotional and even physical. When your heart feels heavy, recite. It is medicine.'
+  },
+  {
+    type: 'ayah',
+    arabic: 'إِنَّ أَكْرَمَكُمْ عِندَ اللَّهِ أَتْقَاكُمْ',
+    translation: '"Indeed, the most noble of you in the sight of Allah is the most righteous of you."',
+    source: 'Surah Al-Hujurat (49:13)',
+    explanation: 'Your worth isn\'t determined by your looks, wealth, family name, or social media following. With Allah, the only currency is taqwa — consciousness of Him.'
+  },
+  {
+    type: 'ayah',
+    arabic: 'وَمَا أَرْسَلْنَاكَ إِلَّا رَحْمَةً لِّلْعَالَمِينَ',
+    translation: '"And We have not sent you except as a mercy to the worlds."',
+    source: 'Surah Al-Anbiya (21:107)',
+    explanation: 'The Prophet Muhammad ﷺ was sent as mercy — not punishment, not fear, not anger. His entire mission was rooted in compassion. Following his sunnah means being merciful.'
+  },
+  {
+    type: 'ayah',
+    arabic: 'وَلَا تَمْشِ فِي الْأَرْضِ مَرَحًا',
+    translation: '"And do not walk upon the earth with arrogance."',
+    source: 'Surah Al-Isra (17:37)',
+    explanation: 'Humility is a core Islamic virtue. No matter how successful you become, remember where you came from and who gave it to you. Stay grounded.'
+  },
+  {
+    type: 'ayah',
+    arabic: 'رَبِّ هَبْ لِي حُكْمًا وَأَلْحِقْنِي بِالصَّالِحِينَ',
+    translation: '"My Lord, grant me wisdom and join me with the righteous."',
+    source: 'Surah Ash-Shu\'ara (26:83)',
+    explanation: 'Ibrahim (AS) asked for two things: wisdom and righteous company. Good company is so important that a Prophet asked Allah for it. Surround yourself with people who bring you closer to Allah.'
+  },
+  {
+    type: 'ayah',
+    arabic: 'وَمَا الْحَيَاةُ الدُّنْيَا إِلَّا مَتَاعُ الْغُرُورِ',
+    translation: '"And the worldly life is not but the enjoyment of delusion."',
+    source: 'Surah Aal-Imran (3:185)',
+    explanation: 'The dunya is designed to be temporary and deceiving. Don\'t build your entire identity around something that will disappear. Invest in what lasts.'
+  },
+  {
+    type: 'ayah',
+    arabic: 'وَاسْتَغْفِرُوا رَبَّكُمْ ثُمَّ تُوبُوا إِلَيْهِ',
+    translation: '"And ask forgiveness of your Lord and then repent to Him."',
+    source: 'Surah Hud (11:3)',
+    explanation: 'Istighfar opens doors. The Prophet ﷺ said: \'Whoever makes istighfar constantly, Allah will give him relief from every worry, a way out of every difficulty, and provision from sources he never imagined.\' (Abu Dawud)'
+  },
+  {
+    type: 'ayah',
+    arabic: 'وَاتَّقُوا اللَّهَ ۚ وَيُعَلِّمُكُمُ اللَّهُ',
+    translation: '"And fear Allah. And Allah teaches you."',
+    source: 'Surah Al-Baqarah (2:282)',
+    explanation: 'Taqwa opens the door to knowledge and understanding. The more conscious you are of Allah, the more He opens your mind and heart to wisdom.'
+  },
+  {
+    type: 'ayah',
+    arabic: 'وَمَن يَعْتَصِم بِاللَّهِ فَقَدْ هُدِيَ إِلَىٰ صِرَاطٍ مُّسْتَقِيمٍ',
+    translation: '"And whoever holds firmly to Allah has been guided to a straight path."',
+    source: 'Surah Aal-Imran (3:101)',
+    explanation: 'Hold firmly to Allah — through prayer, Quran, dua, and good deeds. That firm grip is what keeps you on the straight path when everything around you tries to pull you away.'
+  },
+  {
+    type: 'ayah',
+    arabic: 'وَمَن تَوَكَّلَ عَلَى اللَّهِ فَهُوَ حَسْبُهُ ۚ إِنَّ اللَّهَ بَالِغُ أَمْرِهِ',
+    translation: '"Whoever relies upon Allah — then He is sufficient for him. Indeed, Allah will accomplish His purpose."',
+    source: 'Surah At-Talaq (65:3)',
+    explanation: 'Allah WILL accomplish His purpose — it\'s guaranteed. Your job is to rely on Him and do your part. The outcome is already decided by the best of planners.'
+  },
+  {
+    type: 'ayah',
+    arabic: 'وَلَا تَمُدَّنَّ عَيْنَيْكَ إِلَىٰ مَا مَتَّعْنَا بِهِ أَزْوَاجًا مِّنْهُمْ',
+    translation: '"And do not extend your eyes toward that by which We have given enjoyment to some of them."',
+    source: 'Surah Ta-Ha (20:131)',
+    explanation: 'Stop comparing your life to others. What others have was chosen for them; what you have was chosen for you. Comparison kills contentment and gratitude.'
+  },
+  {
+    type: 'hadith',
+    arabic: 'إِنَّ اللَّهَ جَمِيلٌ يُحِبُّ الْجَمَالَ',
+    translation: '"Verily, Allah is Beautiful and He loves beauty."',
+    source: 'Sahih Muslim (91)',
+    explanation: 'Appreciating and creating beauty is part of faith — keeping yourself, your space, and your work beautiful is not vanity, it\'s worship.'
+  },
+  {
+    type: 'hadith',
+    arabic: 'مَنْ سَلَكَ طَرِيقًا يَلْتَمِسُ فِيهِ عِلْمًا سَهَّلَ اللَّهُ لَهُ بِهِ طَرِيقًا إِلَى الْجَنَّةِ',
+    translation: '"Whoever travels a path in search of knowledge, Allah will make easy for them a path to Paradise."',
+    source: 'Sahih Muslim (2699)',
+    explanation: 'Every moment of learning — Islamic or worldly — is worship. Allah rewards the effort, not just the result.'
+  },
+  {
+    type: 'hadith',
+    arabic: 'أَحَبُّ الْأَعْمَالِ إِلَى اللَّهِ أَدْوَمُهَا وَإِنْ قَلَّ',
+    translation: '"The most beloved deeds to Allah are those done consistently, even if they are small."',
+    source: 'Sahih al-Bukhari (6464)',
+    explanation: 'Consistency over intensity. One page of Quran daily beats 30 pages once a month. Small, consistent steps compound into transformation.'
+  },
+  {
+    type: 'hadith',
+    arabic: 'إِنَّمَا الأَعْمَالُ بِالنِّيَّاتِ',
+    translation: '"Actions are judged by intentions."',
+    source: 'Sahih al-Bukhari (1)',
+    explanation: 'The same action can be worship or worthless depending on why you do it. Renew your intention and everything becomes ibadah.'
+  },
+  {
+    type: 'hadith',
+    arabic: 'مَنْ لَا يَشْكُرِ النَّاسَ لَا يَشْكُرِ اللَّهَ',
+    translation: '"He who does not thank people does not thank Allah."',
+    source: 'Abu Dawud (4811), Sahih',
+    explanation: 'Gratitude to Allah also means gratitude to the people He placed in your life. A simple thank you carries more weight than you think.'
+  },
+  {
+    type: 'hadith',
+    arabic: 'الدُّنْيَا سِجْنُ الْمُؤْمِنِ وَجَنَّةُ الْكَافِرِ',
+    translation: '"The world is a prison for the believer and a paradise for the disbeliever."',
+    source: 'Sahih Muslim (2956)',
+    explanation: 'Compared to Jannah, this world — even at its best — is a prison. When life feels restricted, remember: you\'re not home yet.'
+  },
+  {
+    type: 'hadith',
+    arabic: 'تَبَسُّمُكَ فِي وَجْهِ أَخِيكَ لَكَ صَدَقَةٌ',
+    translation: '"Your smile in the face of your brother is charity."',
+    source: 'Tirmidhi (1956), Sahih',
+    explanation: 'A smile counts as sadaqah. You don\'t need money to give charity — just kindness, warmth, and a gentle face.'
+  },
+  {
+    type: 'hadith',
+    arabic: 'الطُّهُورُ شَطْرُ الْإِيمَانِ',
+    translation: '"Cleanliness is half of faith."',
+    source: 'Sahih Muslim (223)',
+    explanation: 'Physical and spiritual purity go hand in hand. Keeping yourself, your space, and your heart clean is literally half your religion.'
+  },
+  {
+    type: 'hadith',
+    arabic: 'لَا ضَرَرَ وَلَا ضِرَارَ',
+    translation: '"There should be neither harm nor reciprocal harm."',
+    source: 'Ibn Majah (2341), Sahih',
+    explanation: 'A foundational principle: don\'t harm others and don\'t retaliate with harm. Islam promotes resolution, not escalation.'
+  },
+  {
+    type: 'hadith',
+    arabic: 'الْمُسْلِمُ مَنْ سَلِمَ الْمُسْلِمُونَ مِنْ لِسَانِهِ وَيَدِهِ',
+    translation: '"A Muslim is the one from whose tongue and hand other Muslims are safe."',
+    source: 'Sahih al-Bukhari (10)',
+    explanation: 'True Islam manifests in how you treat people. Guard your tongue and hands — backbiting, gossip, and aggression have no place in a believer\'s life.'
+  },
+  {
+    type: 'hadith',
+    arabic: 'خَيْرُكُمْ خَيْرُكُمْ لِأَهْلِهِ',
+    translation: '"The best of you are those who are best to their families."',
+    source: 'Tirmidhi (3895), Sahih',
+    explanation: 'Your character at home is your real character. Being kind to strangers but harsh with family is not the sunnah.'
+  },
+  {
+    type: 'hadith',
+    arabic: 'مَا مَلَأَ آدَمِيٌّ وِعَاءً شَرًّا مِنْ بَطْنٍ',
+    translation: '"No human ever filled a worse container than his stomach."',
+    source: 'Tirmidhi (2380), Sahih',
+    explanation: 'The Prophet ﷺ advised: a third for food, a third for water, a third for air. Overeating affects your body, energy, and worship.'
+  },
+  {
+    type: 'hadith',
+    arabic: 'إِنَّ اللَّهَ يُحِبُّ إِذَا عَمِلَ أَحَدُكُمْ عَمَلًا أَنْ يُتْقِنَهُ',
+    translation: '"Verily, Allah loves that when any of you does a deed, you do it with excellence."',
+    source: 'Bayhaqi, Hasan',
+    explanation: 'Whatever you do — school, work, art, cooking — do it with ihsan (excellence). Half-effort is not the way of a believer.'
+  },
+  {
+    type: 'hadith',
+    arabic: 'الْمُؤْمِنُ الْقَوِيُّ خَيْرٌ وَأَحَبُّ إِلَى اللهِ مِنَ الْمُؤْمِنِ الضَّعِيفِ',
+    translation: '"The strong believer is better and more beloved to Allah than the weak believer, while there is good in both."',
+    source: 'Sahih Muslim (2664)',
+    explanation: 'Strength here means in faith, character, body, and willpower. Work on getting stronger in every sense — physically, mentally, spiritually.'
+  },
+  {
+    type: 'hadith',
+    arabic: 'مَنْ قَامَ لَيْلَةَ الْقَدْرِ إِيمَانًا وَاحْتِسَابًا غُفِرَ لَهُ مَا تَقَدَّمَ مِنْ ذَنْبِهِ',
+    translation: '"Whoever stands in prayer on Laylatul Qadr out of faith and hope of reward, all their previous sins will be forgiven."',
+    source: 'Sahih al-Bukhari (1901)',
+    explanation: 'One night of sincere worship can erase a lifetime of sins. Never underestimate the power of special nights and moments in Islam.'
+  },
+];
+
+// ===== QUOTES =====
+const quotes = [
+  { text: "Verily, with hardship comes ease.", source: "Quran 94:6" },
+  { text: "Be in this world as though you were a stranger or a traveler.", source: "Prophet Muhammad ﷺ (Bukhari)" },
+  { text: "The best of people are those who are most beneficial to people.", source: "Prophet Muhammad ﷺ" },
+  { text: "And whoever puts their trust in Allah, He will be enough for them.", source: "Quran 65:3" },
+  { text: "Take advantage of five before five: your youth before your old age.", source: "Prophet Muhammad ﷺ (Hakim)" },
+  { text: "Small deeds done consistently are better than great deeds done occasionally.", source: "Prophet Muhammad ﷺ (Bukhari)" },
+  { text: "He who does not thank people, does not thank Allah.", source: "Prophet Muhammad ﷺ (Abu Dawud)" },
+  { text: "Indeed, Allah will not change the condition of a people until they change what is in themselves.", source: "Quran 13:11" },
+  { text: "The strong person is not the one who can wrestle someone else down. The strong person is the one who can control themselves when they are angry.", source: "Prophet Muhammad ﷺ (Bukhari)" },
+  { text: "Do not lose hope, nor be sad.", source: "Quran 3:139" },
+  { text: "Discipline is the bridge between goals and accomplishment.", source: "Jim Rohn" },
+  { text: "Whoever travels a path in search of knowledge, Allah will make easy for them a path to Paradise.", source: "Prophet Muhammad ﷺ (Muslim)" },
+];
+
+// ===== BADGES =====
+const BADGES = [
+  { id: 'first_log', icon: '🌟', name: 'First Step', desc: 'Log your first day', check: d => d.length >= 1 },
+  { id: 'streak_3', icon: '🔥', name: '3-Day Fire', desc: '3 day streak', check: (d,s) => s.current >= 3 },
+  { id: 'streak_7', icon: '💪', name: 'Week Warrior', desc: '7 day streak', check: (d,s) => s.current >= 7 },
+  { id: 'streak_14', icon: '⚡', name: 'Unstoppable', desc: '14 day streak', check: (d,s) => s.current >= 14 },
+  { id: 'streak_30', icon: '👑', name: 'Monthly Queen', desc: '30 day streak', check: (d,s) => s.current >= 30 },
+  { id: 'quran_5', icon: '📖', name: 'Quran Lover', desc: '5 day Quran streak', check: (d,s) => s.quranStreak >= 5 },
+  { id: 'quran_15', icon: '🕌', name: 'Devoted Reader', desc: '15 day Quran streak', check: (d,s) => s.quranStreak >= 15 },
+  { id: 'no_proc', icon: '🎯', name: 'Laser Focus', desc: '0 procrastination in a day', check: d => d.some(e => e.procTime !== '' && parseFloat(e.procTime) === 0) },
+  { id: 'all_salah', icon: '🤲', name: 'Perfect Salah', desc: 'All 5 salah in a day', check: d => d.some(e => (e.salah||[]).length === 5) },
+  { id: 'salah_7', icon: '✨', name: 'Salah Streak', desc: '7 days all 5 salah', check: d => { let c=0,m=0; d.forEach(e=>{if((e.salah||[]).length===5)c++;else c=0;m=Math.max(m,c)}); return m>=7; }},
+  { id: 'mood_fire', icon: '🔥', name: 'On Fire', desc: '3 days in a row at 🔥 mood', check: d => { let c=0,m=0; d.forEach(e=>{if(e.mood==5)c++;else c=0;m=Math.max(m,c)}); return m>=3; }},
+  { id: 'lvl_5', icon: '🏅', name: 'Level 5', desc: 'Reach level 5', check: (d,s) => s.level >= 5 },
+  { id: 'lvl_10', icon: '💎', name: 'Level 10', desc: 'Reach level 10', check: (d,s) => s.level >= 10 },
+  { id: 'pts_500', icon: '🌙', name: '500 Club', desc: 'Earn 500 XP', check: (d,s) => s.totalXP >= 500 },
+  { id: 'pts_1000', icon: '🚀', name: '1K Legend', desc: 'Earn 1000 XP', check: (d,s) => s.totalXP >= 1000 },
+];
+
+// ===== LEVELS =====
+const LEVEL_NAMES = [
+  'Beginner','Consistent','Dedicated','Disciplined','Warrior',
+  'Champion','Elite','Master','Legend','Queen','Transcendent'
+];
+function getLevelInfo(totalXP) {
+  let level = 1, xpNeeded = 100, xpAccum = 0;
+  while (totalXP >= xpAccum + xpNeeded && level < 99) {
+    xpAccum += xpNeeded;
+    level++;
+    xpNeeded = Math.floor(100 * Math.pow(1.3, level - 1));
+  }
+  const xpInLevel = totalXP - xpAccum;
+  const name = LEVEL_NAMES[Math.min(level - 1, LEVEL_NAMES.length - 1)];
+  return { level, xpInLevel, xpNeeded, name };
+}
+
+// ===== SCORING =====
+function scoreEntry(entry) {
+  let pts = 10; // base for logging
+  const salahCount = (entry.salah || []).length;
+  pts += salahCount * 5;
+  if (salahCount === 5) pts += 10; // bonus for all 5
+  if (entry.quranTime && parseFloat(entry.quranTime) > 0) {
+    pts += Math.min(20, Math.floor(parseFloat(entry.quranTime) / 5) * 2);
+  }
+  if (entry.procTime !== '' && parseFloat(entry.procTime) <= 1) pts += 10;
+  if (entry.procTime !== '' && parseFloat(entry.procTime) === 0) pts += 5;
+  if (entry.mood >= 4) pts += 5;
+  if (entry.grateful && entry.grateful.trim()) pts += 5;
+  if (entry.learned && entry.learned.trim()) pts += 5;
+  if (entry.doBetter && entry.doBetter.trim()) pts += 5;
+  return pts;
+}
+
+// ===== DAILY ISLAMIC LESSON RENDERER =====
+function renderLesson(force) {
+  const today = new Date().toISOString().slice(0, 10);
+  const storageKey = 'laraLessonIndex';
+  let idx;
+  if (force) {
+    idx = Math.floor(Math.random() * islamicLessons.length);
+  } else {
+    const stored = localStorage.getItem(storageKey);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      if (parsed.date === today) { idx = parsed.idx; }
+      else { idx = (parsed.idx + 1) % islamicLessons.length; }
+    } else {
+      idx = Math.floor(Math.random() * islamicLessons.length);
+    }
+  }
+  localStorage.setItem(storageKey, JSON.stringify({ date: today, idx }));
+  const lesson = islamicLessons[idx];
+  document.getElementById('lessonType').textContent = lesson.type === 'name' ? 'Name of Allah' : lesson.type === 'ayah' ? 'Quran' : 'Hadith';
+  document.getElementById('lessonType').className = 'lesson-type ' + lesson.type;
+  document.getElementById('lessonArabic').textContent = lesson.arabic;
+  document.getElementById('lessonTranslation').textContent = lesson.translation;
+  document.getElementById('lessonSource').textContent = lesson.source;
+  document.getElementById('lessonExplanation').textContent = lesson.explanation;
+}
+
+// ===== STREAKS =====
+function calcStreaks(data) {
+  if (!data.length) return { current: 0, best: 0, quranStreak: 0, quranBest: 0, totalXP: 0, level: 1 };
+  const sorted = [...data].sort((a,b) => new Date(a.date) - new Date(b.date));
+  let current = 1, best = 1, quranCur = 0, quranBest = 0, totalXP = 0;
+
+  // total XP
+  sorted.forEach(e => totalXP += (e.score || scoreEntry(e)));
+
+  // day streak
+  for (let i = sorted.length - 1; i > 0; i--) {
+    const d1 = new Date(sorted[i].date);
+    const d2 = new Date(sorted[i-1].date);
+    const diff = (d1 - d2) / (1000*60*60*24);
+    if (Math.abs(diff - 1) < 0.01) { current++; best = Math.max(best, current); }
+    else break;
+  }
+  best = Math.max(best, current);
+
+  // quran streak (from most recent)
+  for (let i = sorted.length - 1; i >= 0; i--) {
+    if (sorted[i].quranTime && parseFloat(sorted[i].quranTime) > 0) {
+      quranCur++;
+      quranBest = Math.max(quranBest, quranCur);
+      if (i > 0) {
+        const d1 = new Date(sorted[i].date);
+        const d2 = new Date(sorted[i-1].date);
+        const diff = (d1 - d2) / (1000*60*60*24);
+        if (Math.abs(diff - 1) > 0.01) break;
+      }
+    } else break;
+  }
+
+  const lvl = getLevelInfo(totalXP);
+  return { current, best, quranStreak: quranCur, quranBest, totalXP, ...lvl };
+}
+
+// ===== MOOD SELECTION =====
+let selectedMood = 0;
+function selectMood(m) {
+  selectedMood = m;
+  document.querySelectorAll('.mood-btn').forEach(b => {
+    b.classList.toggle('active', parseInt(b.dataset.mood) === m);
+  });
+}
+
+// ===== SAVE ENTRY =====
+function saveEntry() {
+  const date = document.getElementById('entryDate').value;
+  if (!date) { showToast('Pick a date first! 📅'); return; }
+
+  const data = getData();
+  const existing = data.findIndex(e => e.date === date);
+
+  const salah = [];
+  ['Fajr','Dhuhr','Asr','Maghrib','Isha'].forEach(s => {
+    if (document.getElementById('salah' + s).checked) salah.push(s);
+  });
+
+  const entry = {
+    date,
+    sleepStart: document.getElementById('sleepStart').value,
+    sleepEnd: document.getElementById('sleepEnd').value,
+    procTime: document.getElementById('procTime').value,
+    procSource: document.getElementById('procSource').value,
+    quranTime: document.getElementById('quranTime').value,
+    salah,
+    mood: selectedMood,
+    grateful: document.getElementById('grateful').value,
+    learned: document.getElementById('learned').value,
+    doBetter: document.getElementById('doBetter').value,
+  };
+  entry.score = scoreEntry(entry);
+
+  if (existing >= 0) data[existing] = entry;
+  else data.push(entry);
+
+  data.sort((a,b) => new Date(a.date) - new Date(b.date));
+  setData(data);
+  refreshAll();
+  showToast(`+${entry.score} XP earned! 🌟`);
+
+  // Reset form
+  selectedMood = 0;
+  document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('active'));
+  ['sleepStart','sleepEnd','procTime','quranTime','grateful','learned','doBetter'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('procSource').value = '';
+  ['Fajr','Dhuhr','Asr','Maghrib','Isha'].forEach(s => document.getElementById('salah'+s).checked = false);
+}
+
+// ===== TOAST =====
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ===== SLEEP DURATION =====
+function calcSleepHours(start, end) {
+  if (!start || !end) return null;
+  const [sh, sm] = start.split(':').map(Number);
+  const [eh, em] = end.split(':').map(Number);
+  let diff = (eh * 60 + em) - (sh * 60 + sm);
+  if (diff <= 0) diff += 24 * 60;
+  return Math.round(diff / 60 * 10) / 10;
+}
+
+// ===== RENDER FUNCTIONS =====
+let moodChart, sleepChart, quranChart, procChart, scoreChart, salahChart;
+
+function refreshAll() {
+  const data = getData();
+  const streaks = calcStreaks(data);
+
+  // Stats
+  document.getElementById('currentStreak').textContent = streaks.current;
+  document.getElementById('totalPoints').textContent = streaks.totalXP;
+  document.getElementById('currentLevel').textContent = streaks.level;
+  document.getElementById('quranStreak').textContent = streaks.quranStreak;
+
+  // Avg mood (7d)
+  const recent = data.slice(-7).filter(e => e.mood > 0);
+  if (recent.length) {
+    const avg = recent.reduce((s,e) => s + e.mood, 0) / recent.length;
+    document.getElementById('avgMood').textContent = MOODS[Math.round(avg)];
+  } else {
+    document.getElementById('avgMood').textContent = '-';
+  }
+
+  // XP Bar
+  const lvl = getLevelInfo(streaks.totalXP);
+  document.getElementById('levelLabel').textContent = `Level ${lvl.level} — ${lvl.name}`;
+  document.getElementById('xpLabel').textContent = `${lvl.xpInLevel} / ${lvl.xpNeeded} XP`;
+  document.getElementById('xpBarFill').style.width = `${(lvl.xpInLevel / lvl.xpNeeded * 100).toFixed(1)}%`;
+
+  // Badges
+  renderBadges(data, streaks);
+
+  // Calendar
+  renderCalendar(data);
+
+  // Charts
+  renderCharts(data);
+
+  // Quote
+  renderQuote();
+
+  // Islamic Lesson
+  renderLesson(false);
+
+  // AI Progress Analysis
+  analyzeProgress();
+}
+
+function renderBadges(data, streaks) {
+  const grid = document.getElementById('badgesGrid');
+  grid.innerHTML = '';
+  BADGES.forEach(b => {
+    const earned = b.check(data, streaks);
+    const div = document.createElement('div');
+    div.className = `badge ${earned ? 'earned' : 'locked'}`;
+    div.innerHTML = `${b.icon}<span class="badge-tooltip">${b.name}: ${b.desc}</span>`;
+    grid.appendChild(div);
+  });
+}
+
+function renderCalendar(data) {
+  const grid = document.getElementById('calendarGrid');
+  grid.innerHTML = '';
+  const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  days.forEach(d => {
+    const el = document.createElement('div');
+    el.className = 'cal-day-header';
+    el.textContent = d;
+    grid.appendChild(el);
+  });
+
+  const year = 2026, month = 2; // March
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const today = new Date();
+  const todayDate = today.getDate();
+  const todayMonth = today.getMonth();
+  const todayYear = today.getFullYear();
+  const loggedDates = new Set(data.map(e => e.date));
+
+  for (let i = 0; i < firstDay; i++) {
+    const el = document.createElement('div');
+    el.className = 'cal-day empty';
+    grid.appendChild(el);
+  }
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const el = document.createElement('div');
+    const isToday = d === todayDate && month === todayMonth && year === todayYear;
+    const isFuture = new Date(year, month, d) > today;
+    const isLogged = loggedDates.has(dateStr);
+
+    let cls = 'cal-day';
+    if (isLogged) cls += ' logged';
+    else if (isFuture) cls += ' future';
+    else cls += ' missed';
+    if (isToday) cls += ' today';
+
+    el.className = cls;
+    el.textContent = d;
+    grid.appendChild(el);
+  }
+}
+
+function renderCharts(data) {
+  const recent = data.slice(-14);
+  const labels = recent.map(e => {
+    const d = new Date(e.date + 'T00:00:00');
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  });
+
+  const chartDefaults = {
+    responsive: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { ticks: { color: '#888', font: { size: 10 } }, grid: { color: '#2a2a4a' } },
+      y: { ticks: { color: '#888', font: { size: 10 } }, grid: { color: '#2a2a4a' } }
+    }
+  };
+
+  // Mood Chart
+  if (moodChart) moodChart.destroy();
+  moodChart = new Chart(document.getElementById('moodChart'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        data: recent.map(e => e.mood || null),
+        borderColor: '#06d6a0',
+        backgroundColor: 'rgba(6,214,160,0.1)',
+        fill: true,
+        tension: 0.4,
+        pointBackgroundColor: recent.map(e => e.mood >= 4 ? '#06d6a0' : e.mood >= 3 ? '#ffd166' : '#e94560'),
+        pointRadius: 6,
+      }]
+    },
+    options: { ...chartDefaults, scales: { ...chartDefaults.scales, y: { ...chartDefaults.scales.y, min: 0, max: 5, ticks: { ...chartDefaults.scales.y.ticks, stepSize: 1, callback: v => MOODS[v] || '' } } } }
+  });
+
+  // Sleep Chart
+  if (sleepChart) sleepChart.destroy();
+  sleepChart = new Chart(document.getElementById('sleepChart'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        data: recent.map(e => calcSleepHours(e.sleepStart, e.sleepEnd)),
+        backgroundColor: recent.map(e => {
+          const h = calcSleepHours(e.sleepStart, e.sleepEnd);
+          return h >= 7 ? 'rgba(139,92,246,0.7)' : h >= 5 ? 'rgba(255,209,102,0.7)' : 'rgba(233,69,96,0.7)';
+        }),
+        borderRadius: 6,
+      }]
+    },
+    options: { ...chartDefaults, scales: { ...chartDefaults.scales, y: { ...chartDefaults.scales.y, min: 0, max: 12 } } }
+  });
+
+  // Quran Chart
+  if (quranChart) quranChart.destroy();
+  quranChart = new Chart(document.getElementById('quranChart'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        data: recent.map(e => parseFloat(e.quranTime) || 0),
+        backgroundColor: 'rgba(6,214,160,0.7)',
+        borderRadius: 6,
+      }]
+    },
+    options: chartDefaults
+  });
+
+  // Procrastination Chart
+  if (procChart) procChart.destroy();
+  procChart = new Chart(document.getElementById('procChart'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        data: recent.map(e => e.procTime !== '' ? parseFloat(e.procTime) : null),
+        borderColor: '#e94560',
+        backgroundColor: 'rgba(233,69,96,0.1)',
+        fill: true,
+        tension: 0.4,
+        pointRadius: 5,
+      }]
+    },
+    options: chartDefaults
+  });
+
+  // Score Chart
+  if (scoreChart) scoreChart.destroy();
+  scoreChart = new Chart(document.getElementById('scoreChart'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        data: recent.map(e => e.score || 0),
+        borderColor: '#ffd166',
+        backgroundColor: 'rgba(255,209,102,0.1)',
+        fill: true,
+        tension: 0.4,
+        pointRadius: 5,
+        pointBackgroundColor: '#ffd166',
+      }]
+    },
+    options: chartDefaults
+  });
+
+  // Salah Chart
+  if (salahChart) salahChart.destroy();
+  salahChart = new Chart(document.getElementById('salahChart'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        data: recent.map(e => (e.salah || []).length),
+        backgroundColor: recent.map(e => {
+          const c = (e.salah||[]).length;
+          return c === 5 ? 'rgba(6,214,160,0.8)' : c >= 3 ? 'rgba(255,209,102,0.7)' : 'rgba(233,69,96,0.6)';
+        }),
+        borderRadius: 6,
+      }]
+    },
+    options: { ...chartDefaults, scales: { ...chartDefaults.scales, y: { ...chartDefaults.scales.y, min: 0, max: 5, ticks: { ...chartDefaults.scales.y.ticks, stepSize: 1 } } } }
+  });
+}
+
+function renderQuote() {
+  const q = quotes[Math.floor(Math.random() * quotes.length)];
+  document.getElementById('quoteText').textContent = q.text;
+  document.getElementById('quoteSource').textContent = '— ' + q.source;
+}
+
+// ===== EXPORT =====
+function exportData() {
+  const data = getData();
+  if (!data.length) { showToast('No data to export!'); return; }
+  const headers = ['Date','SleepStart','SleepEnd','SleepHours','ProcTime','ProcSource','QuranTime','Salah','Mood','MoodEmoji','Score','Grateful','Learned','DoBetter'];
+  const rows = data.map(e => [
+    e.date, e.sleepStart, e.sleepEnd, calcSleepHours(e.sleepStart,e.sleepEnd)||'',
+    e.procTime, e.procSource, e.quranTime, (e.salah||[]).join(';'),
+    e.mood, MOODS[e.mood]||'', e.score||'', `"${(e.grateful||'').replace(/"/g,'""')}"`,
+    `"${(e.learned||'').replace(/"/g,'""')}"`, `"${(e.doBetter||'').replace(/"/g,'""')}"`
+  ]);
+  const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `Lara_Tracker_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  showToast('CSV exported! 📤');
+}
+
+// ===== IMPORT =====
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const text = e.target.result;
+    const lines = text.split('\n').filter(l => l.trim());
+    if (lines.length < 2) { showToast('Empty CSV'); return; }
+    const headers = lines[0].split(',');
+    const data = getData();
+    let imported = 0;
+    for (let i = 1; i < lines.length; i++) {
+      const cols = lines[i].split(',');
+      const dateVal = cols[0]?.trim();
+      if (!dateVal || dateVal === 'Average') continue;
+      // Try to parse the date
+      let parsedDate;
+      try {
+        const d = new Date(dateVal);
+        if (!isNaN(d)) parsedDate = d.toISOString().slice(0,10);
+      } catch {}
+      if (!parsedDate) continue;
+      if (data.some(e => e.date === parsedDate)) continue;
+      data.push({
+        date: parsedDate,
+        sleepStart: '', sleepEnd: '',
+        procTime: '', procSource: '', quranTime: '',
+        salah: [], mood: 0, grateful: '', learned: '', doBetter: '', score: 10
+      });
+      imported++;
+    }
+    data.sort((a,b) => new Date(a.date) - new Date(b.date));
+    setData(data);
+    refreshAll();
+    showToast(`Imported ${imported} dates! 📥`);
+    event.target.value = '';
+  };
+  reader.readAsText(file);
+}
+
+
+// ===== AI PROGRESS ANALYZER =====
+function analyzeProgress() {
+  const data = getData();
+  const container = document.getElementById('aiAnalysis');
+  
+  if (data.length < 3) {
+    container.innerHTML = '<div class="ai-no-data">Log at least 3 days to get personalized advice based on Quran & Sunnah</div>';
+    return;
+  }
+
+  const recent = data.slice(-7);
+  const allData = data;
+  let blocks = [];
+
+  // --- Streak Analysis ---
+  const streaks = calcStreaks(data);
+  if (streaks.current >= 7) {
+    blocks.push({ type: 'positive', title: '🔥 Streak Power', text: `MashaAllah! You\'re on a ${streaks.current}-day streak! Consistency is the most beloved quality to Allah.`, hadith: '"The most beloved deeds to Allah are those done consistently, even if they are small." — Bukhari (6464)' });
+  } else if (streaks.current >= 3) {
+    blocks.push({ type: 'positive', title: '💪 Building Momentum', text: `${streaks.current} days in a row — you\'re building a strong foundation. Keep pushing, the habit is forming!`, hadith: '"Whoever is consistent in something, Allah will be consistent with them." — Principle from the Sunnah' });
+  } else if (streaks.current <= 1 && data.length >= 5) {
+    blocks.push({ type: 'warning', title: '⚠️ Consistency Check', text: 'Your streak has broken. Don\'t despair — every day is a new chance. The fact that you\'re here shows you care. Start fresh today.', hadith: '"All of the children of Adam are sinners, and the best sinners are those who repent." — Tirmidhi (2499)' });
+  }
+
+  // --- Sleep Analysis ---
+  const sleepHours = recent.map(e => calcSleepHours(e.sleepStart, e.sleepEnd)).filter(h => h !== null);
+  if (sleepHours.length >= 3) {
+    const avgSleep = sleepHours.reduce((a,b) => a+b, 0) / sleepHours.length;
+    if (avgSleep < 6) {
+      blocks.push({ type: 'warning', title: '😴 Sleep Alert', text: `You\'re averaging ${avgSleep.toFixed(1)} hours of sleep — that\'s below what your body needs. Poor sleep affects your mood, ibadah, and productivity. The Prophet ﷺ balanced worship with rest.`, hadith: '"Your body has a right over you." — Bukhari (5199)' });
+    } else if (avgSleep >= 7 && avgSleep <= 9) {
+      blocks.push({ type: 'positive', title: '😴 Healthy Sleep', text: `Averaging ${avgSleep.toFixed(1)} hours — great balance! Good sleep is foundational for everything else.`, hadith: '' });
+    }
+  }
+
+  // --- Salah Analysis ---
+  const salahCounts = recent.map(e => (e.salah || []).length);
+  const avgSalah = salahCounts.reduce((a,b) => a+b, 0) / salahCounts.length;
+  if (avgSalah >= 4.5) {
+    blocks.push({ type: 'positive', title: '🕌 Salah Excellence', text: `You\'re consistently praying ${avgSalah.toFixed(1)}/5 salah — this is the backbone of your deen. Keep it up!`, hadith: '"The first thing a person will be asked about on the Day of Judgment is their salah." — Tabarani, Sahih' });
+  } else if (avgSalah < 3 && salahCounts.length >= 3) {
+    blocks.push({ type: 'warning', title: '🕌 Salah Reminder', text: `You\'re averaging ${avgSalah.toFixed(1)}/5 prayers logged. Salah is the direct connection between you and Allah. Even if you\'re struggling, start with just making sure you don\'t miss one specific prayer — build from there.`, hadith: '"The covenant between us and them is prayer; whoever abandons it has disbelieved." — Tirmidhi (2621)' });
+  } else if (avgSalah >= 3 && avgSalah < 4.5) {
+    blocks.push({ type: 'tip', title: '🕌 Salah Growth', text: `You\'re at ${avgSalah.toFixed(1)}/5 — good foundation! Try adding one more prayer consistently this week.`, hadith: '' });
+  }
+
+  // --- Quran Analysis ---
+  const quranTimes = recent.map(e => parseFloat(e.quranTime) || 0);
+  const avgQuran = quranTimes.reduce((a,b) => a+b, 0) / quranTimes.length;
+  if (avgQuran > 15) {
+    blocks.push({ type: 'positive', title: '📖 Quran Connection', text: `Beautiful — averaging ${avgQuran.toFixed(0)} minutes of Quran time! The Quran will be your intercessor on the Day of Judgment.`, hadith: '"Read the Quran, for it will come as an intercessor for its companions on the Day of Resurrection." — Muslim (804)' });
+  } else if (avgQuran < 5 && recent.length >= 3) {
+    blocks.push({ type: 'tip', title: '📖 Start Small with Quran', text: 'Your Quran time has been low. Start with just 5 minutes — even one ayah with reflection. Allah made it easy: "And We have certainly made the Quran easy for remembrance." (54:17)', hadith: '"The best of you are those who learn the Quran and teach it." — Bukhari (5027)' });
+  }
+
+  // --- Procrastination Analysis ---
+  const procTimes = recent.filter(e => e.procTime !== '').map(e => parseFloat(e.procTime));
+  if (procTimes.length >= 3) {
+    const avgProc = procTimes.reduce((a,b) => a+b, 0) / procTimes.length;
+    if (avgProc > 3) {
+      // Find most common source
+      const sources = recent.filter(e => e.procSource).map(e => e.procSource);
+      const sourceCount = {};
+      sources.forEach(s => sourceCount[s] = (sourceCount[s]||0) + 1);
+      const topSource = Object.entries(sourceCount).sort((a,b) => b[1] - a[1])[0];
+      const sourceText = topSource ? ` Your main source: ${topSource[0]}.` : '';
+      blocks.push({ type: 'warning', title: '📱 Procrastination Alert', text: `You\'re averaging ${avgProc.toFixed(1)} hours of wasted time.${sourceText} Try setting specific times for these activities instead of cutting them completely — moderation is key.`, hadith: '"Take advantage of five before five: your youth before your old age, your health before your sickness, your wealth before your poverty, your free time before your busyness, and your life before your death." — Hakim, Sahih' });
+    } else if (avgProc <= 1) {
+      blocks.push({ type: 'positive', title: '🎯 Focused!', text: `Only ${avgProc.toFixed(1)} hours of procrastination on average — mashaAllah, you\'re using your time well!`, hadith: '' });
+    }
+  }
+
+  // --- Mood Analysis ---
+  const moods = recent.filter(e => e.mood > 0).map(e => e.mood);
+  if (moods.length >= 3) {
+    const avgMood = moods.reduce((a,b) => a+b, 0) / moods.length;
+    const trend = moods.length >= 4 ? moods.slice(-2).reduce((a,b)=>a+b,0)/2 - moods.slice(0,2).reduce((a,b)=>a+b,0)/2 : 0;
+    if (avgMood < 2.5) {
+      blocks.push({ type: 'warning', title: '💛 Emotional Check-In', text: 'Your mood has been low lately. Be gentle with yourself — difficult emotions are part of being human. Talk to someone you trust, make extra dua, and remember that after hardship comes ease.', hadith: '"No fatigue, disease, sorrow, sadness, hurt, or distress befalls a Muslim, even if it were the prick of a thorn, except that Allah expiates some of their sins because of it." — Bukhari (5641)' });
+    } else if (trend > 0.5) {
+      blocks.push({ type: 'positive', title: '📈 Mood Improving!', text: 'Your mood is trending upward — alhamdulillah. Whatever you\'re doing, keep doing it.', hadith: '' });
+    } else if (trend < -0.5) {
+      blocks.push({ type: 'tip', title: '🫂 Mood Dipping', text: 'Your mood has been going down. Check your sleep, salah, and Quran time — they\'re often connected. Also consider spending time in nature and with good company.', hadith: '"A person is upon the religion of their close friend, so let one of you look at whom they befriend." — Tirmidhi (2378)' });
+    }
+  }
+
+  // --- Gratitude Analysis ---
+  const gratefulCount = recent.filter(e => e.grateful && e.grateful.trim()).length;
+  if (gratefulCount >= 5) {
+    blocks.push({ type: 'positive', title: '🤲 Gratitude Champion', text: 'You\'ve been consistently logging what you\'re grateful for — this rewires your brain toward positivity and attracts more blessings.', hadith: '"If you are grateful, I will surely increase you." — Quran 14:7' });
+  } else if (gratefulCount <= 1 && recent.length >= 5) {
+    blocks.push({ type: 'tip', title: '🤲 Try Gratitude', text: 'Fill in the gratitude section more often — even writing "I woke up healthy" counts. Gratitude is scientifically proven to improve mood and is a direct cause of barakah in Islam.', hadith: '' });
+  }
+
+  // --- Overall Score Trend ---
+  if (data.length >= 7) {
+    const lastWeek = data.slice(-7).map(e => e.score || 0);
+    const prevWeek = data.slice(-14, -7).map(e => e.score || 0);
+    if (prevWeek.length >= 3) {
+      const lastAvg = lastWeek.reduce((a,b)=>a+b,0) / lastWeek.length;
+      const prevAvg = prevWeek.reduce((a,b)=>a+b,0) / prevWeek.length;
+      const change = ((lastAvg - prevAvg) / prevAvg * 100).toFixed(0);
+      if (lastAvg > prevAvg) {
+        blocks.push({ type: 'positive', title: '⭐ Score Improving', text: `Your daily score is up ${change}% compared to last week. You\'re leveling up in real life, not just in the tracker!`, hadith: '' });
+      }
+    }
+  }
+
+  // --- Render ---
+  if (blocks.length === 0) {
+    blocks.push({ type: 'tip', title: '📊 Keep Going', text: 'Keep logging your days — the more data you provide, the better advice I can give. Aim to fill in all fields for the most accurate analysis.', hadith: '' });
+  }
+
+  container.innerHTML = blocks.map(b => `
+    <div class="ai-block ${b.type}">
+      <h4>${b.title}</h4>
+      <p>${b.text}</p>
+      ${b.hadith ? '<span class="ai-hadith">' + b.hadith + '</span>' : ''}
+    </div>
+  `).join('');
+}
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', () => {
+  const today = new Date().toISOString().slice(0, 10);
+  document.getElementById('entryDate').value = today;
+  refreshAll();
+});
+</script>
+</body>
+</html>
