@@ -264,6 +264,13 @@
     width: 100%;
   }
   .btn-save:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(233,69,96,0.3); }
+  .btn {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: white; border: none; padding: 8px 18px; border-radius: 8px;
+    font-size: 0.8rem; font-weight: 600; cursor: pointer;
+    font-family: 'Poppins', sans-serif; transition: all 0.3s;
+  }
+  .btn:hover { transform: translateY(-1px); box-shadow: 0 4px 15px rgba(233,69,96,0.3); }
 
 
 
@@ -632,6 +639,116 @@
     padding: 20px;
     font-size: 0.82rem;
   }
+  /* Morning Discipline */
+  .discipline-checks { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 5px; }
+  .discipline-check {
+    display: flex; align-items: center; gap: 5px; font-size: 0.8rem;
+  }
+  .discipline-check input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent3); cursor: pointer; }
+
+  /* Weekly Goals Section */
+  .weekly-goals-section, .custom-habits-section, .weekly-review-section {
+    background: var(--card); border-radius: 12px; padding: 16px;
+    margin-bottom: 16px; border: 1px solid var(--border);
+  }
+  .weekly-goals-section h3, .custom-habits-section h3, .weekly-review-section h3 {
+    margin-bottom: 10px; font-size: 0.95rem;
+  }
+  .goal-inputs { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+  .goal-inputs input {
+    background: #222240; border: 1px solid var(--border); border-radius: 8px;
+    padding: 8px 10px; color: var(--text); font-family: 'Poppins', sans-serif; font-size: 0.82rem;
+  }
+  .goal-inputs input:focus { outline: none; border-color: var(--accent4); }
+  .active-goals { margin-top: 10px; }
+  .goal-item {
+    display: flex; align-items: center; gap: 10px; padding: 8px 12px;
+    background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 6px;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .goal-item:hover { border-color: var(--accent4); }
+  .goal-item.done { opacity: 0.6; }
+  .goal-item.done .goal-text { text-decoration: line-through; color: var(--text-dim); }
+  .goal-check { font-size: 0.9rem; }
+  .goal-text { font-size: 0.82rem; }
+
+  /* Custom Habits Section */
+  .habit-add-row { display: flex; gap: 8px; margin-bottom: 12px; }
+  .habit-add-row input {
+    flex: 1; background: #222240; border: 1px solid var(--border); border-radius: 8px;
+    padding: 8px 10px; color: var(--text); font-family: 'Poppins', sans-serif; font-size: 0.82rem;
+  }
+  .habit-add-row input:focus { outline: none; border-color: var(--accent); }
+  .custom-habits-list { display: flex; flex-direction: column; gap: 6px; }
+  .habit-item {
+    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px;
+    font-size: 0.82rem;
+  }
+  .habit-remove { background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 0.8rem; padding: 2px 6px; }
+  .habit-remove:hover { color: var(--accent); }
+
+  /* Weekly Review Section */
+  .weekly-review-section textarea {
+    width: 100%; background: #222240; border: 1px solid var(--border); border-radius: 8px;
+    padding: 8px 10px; color: var(--text); font-family: 'Poppins', sans-serif;
+    font-size: 0.82rem; resize: vertical; margin-bottom: 8px;
+  }
+  .weekly-review-section textarea:focus { outline: none; border-color: var(--accent2); }
+  .past-reviews { margin-top: 10px; }
+  .review-card {
+    background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px 12px; margin-bottom: 8px;
+  }
+  .review-week { font-size: 0.7rem; color: var(--accent2); font-weight: 600; margin-bottom: 6px; }
+  .review-item { font-size: 0.75rem; color: var(--text-dim); margin-bottom: 3px; }
+  .review-item strong { color: var(--text); }
+
+  /* Pet Store Section */
+  .pet-store-section {
+    background: linear-gradient(135deg, #1a1030, #15202e); border-radius: 12px; padding: 16px;
+    margin-bottom: 16px; border: 1px solid rgba(255,209,102,0.2);
+    position: relative; overflow: hidden;
+  }
+  .pet-store-section::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, #ffd166, #e94560, #8b5cf6);
+  }
+  .pet-store-section h3, .pet-store-section h4 { margin-bottom: 8px; font-size: 0.95rem; }
+  .coin-display { font-size: 0.85rem; color: var(--accent4); font-weight: 600; margin-bottom: 12px; }
+  .pet-farm {
+    display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; min-height: 50px;
+    padding: 12px; background: rgba(255,255,255,0.02); border-radius: 10px; border: 1px dashed var(--border);
+  }
+  .pet-card {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    background: rgba(255,255,255,0.03); border-radius: 10px; padding: 10px;
+    border: 1px solid var(--border); min-width: 80px; cursor: pointer; transition: all 0.3s;
+  }
+  .pet-card:hover { border-color: var(--accent4); transform: translateY(-2px); }
+  .pet-card .pet-emoji { font-size: 1.8rem; }
+  .pet-card .pet-name { font-size: 0.65rem; color: var(--text); font-weight: 500; }
+  .pet-happiness { width: 100%; display: flex; align-items: center; gap: 4px; }
+  .pet-bar { flex: 1; height: 5px; background: #2a2a4a; border-radius: 3px; overflow: hidden; }
+  .pet-bar-fill { height: 100%; border-radius: 3px; transition: width 0.5s; }
+  .pet-mood { font-size: 0.6rem; }
+  .pet-feed-hint { font-size: 0.55rem; color: var(--text-dim); }
+  .empty-farm { color: var(--text-dim); font-size: 0.78rem; text-align: center; width: 100%; padding: 10px; }
+  .pet-shop { display: flex; flex-wrap: wrap; gap: 8px; }
+  .pet-shop-item {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 10px;
+    padding: 10px 12px; cursor: pointer; transition: all 0.3s; min-width: 75px;
+  }
+  .pet-shop-item:hover { border-color: var(--accent4); transform: translateY(-2px); }
+  .pet-shop-item.cant-afford { opacity: 0.4; cursor: not-allowed; }
+  .pet-shop-item .shop-emoji { font-size: 1.4rem; }
+  .pet-shop-item .shop-name { font-size: 0.6rem; color: var(--text); }
+  .pet-shop-item .shop-price { font-size: 0.6rem; color: var(--accent4); font-weight: 600; }
+
+  @media (max-width: 768px) {
+    .review-grid { grid-template-columns: 1fr; }
+  }
   @media (max-width: 420px) {
     .stats-row { grid-template-columns: repeat(2, 1fr); }
     .entry-grid { grid-template-columns: 1fr; }
@@ -640,6 +757,8 @@
     .mood-selector { gap: 4px; }
     .mood-btn { font-size: 1rem; padding: 2px 4px; }
     .history-details { grid-template-columns: 1fr 1fr; }
+    .review-grid { grid-template-columns: 1fr; }
+    .pet-shop { justify-content: center; }
   }
 </style>
 </head>
@@ -719,6 +838,18 @@
           <label class="salah-check"><input type="checkbox" id="salahMaghrib"> Maghrib</label>
           <label class="salah-check"><input type="checkbox" id="salahIsha"> Isha</label>
         </div>
+      </div>
+      <div class="field full-width">
+        <label>Morning Discipline 🌅</label>
+        <div class="discipline-checks">
+          <label class="discipline-check"><input type="checkbox" id="noPhoneAM"> No phone first hour</label>
+          <label class="discipline-check"><input type="checkbox" id="madeMyBed"> Made my bed</label>
+          <label class="discipline-check"><input type="checkbox" id="morningAdhkar"> Morning adhkar</label>
+        </div>
+      </div>
+      <div class="field full-width" id="customHabitsEntry" style="display:none;">
+        <label>Daily Habits ✅</label>
+        <div class="discipline-checks" id="dailyHabitsChecks"></div>
       </div>
       <div class="field full-width">
         <label>Mood</label>
@@ -835,6 +966,53 @@
     </div>
   </div>
 
+  <!-- Weekly Goals -->
+  <div class="weekly-goals-section">
+    <h3>🎯 Weekly Goals</h3>
+    <div id="weeklyGoalsContainer">
+      <div class="goal-inputs">
+        <input type="text" id="goalInput1" placeholder="Goal 1..." maxlength="100">
+        <input type="text" id="goalInput2" placeholder="Goal 2..." maxlength="100">
+        <input type="text" id="goalInput3" placeholder="Goal 3..." maxlength="100">
+      </div>
+      <button class="btn" onclick="saveWeeklyGoals()">Save Goals</button>
+      <div id="activeGoals" class="active-goals"></div>
+    </div>
+  </div>
+
+  <!-- Custom Habit Tracker -->
+  <div class="custom-habits-section">
+    <h3>📋 My Habits</h3>
+    <div class="habit-add-row">
+      <input type="text" id="newHabitInput" placeholder="New habit name..." maxlength="40">
+      <button class="btn" onclick="addCustomHabit()">+ Add</button>
+    </div>
+    <div id="customHabitsList" class="custom-habits-list"></div>
+  </div>
+
+  <!-- Weekly Review -->
+  <div class="weekly-review-section">
+    <h3>📖 Weekly Review</h3>
+    <div id="weeklyReviewContainer">
+      <textarea id="wentWell" placeholder="What went well this week?" rows="3"></textarea>
+      <textarea id="toImprove" placeholder="What can I improve?" rows="3"></textarea>
+      <textarea id="nextWeekFocus" placeholder="Focus for next week?" rows="3"></textarea>
+      <button class="btn" onclick="saveWeeklyReview()">Save Review</button>
+      <div id="pastReviews" class="past-reviews"></div>
+    </div>
+  </div>
+
+  <!-- Pet Store -->
+  <div class="pet-store-section">
+    <h3>🐾 My Pet Farm</h3>
+    <div class="coin-display">🪙 <span id="coinCount">0</span> coins</div>
+    <div class="pet-farm" id="petFarm">
+      <p class="empty-farm">No pets yet! Visit the shop below 🛒</p>
+    </div>
+    <h4>🛒 Pet Shop</h4>
+    <div class="pet-shop" id="petShop"></div>
+  </div>
+
   <!-- History -->
   <div class="history-section">
     <h3>📝 Entry History</h3>
@@ -861,6 +1039,53 @@ function getData() {
 }
 function setData(data) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+// ===== NEW FEATURE STORAGE =====
+const HABIT_KEY = 'laraCustomHabits';
+const GOALS_KEY = 'laraWeeklyGoals';
+const REVIEWS_KEY = 'laraWeeklyReviews';
+const PET_KEY = 'laraPetStore';
+const COINS_PER_LEVEL = 50;
+
+const PET_SHOP_ITEMS = [
+  { id: 'cat', emoji: '🐱', name: 'Cat', price: 100 },
+  { id: 'bunny', emoji: '🐰', name: 'Bunny', price: 150 },
+  { id: 'hamster', emoji: '🐹', name: 'Hamster', price: 80 },
+  { id: 'duck', emoji: '🦆', name: 'Duck', price: 120 },
+  { id: 'penguin', emoji: '🐧', name: 'Penguin', price: 200 },
+  { id: 'turtle', emoji: '🐢', name: 'Turtle', price: 90 },
+  { id: 'fox', emoji: '🦊', name: 'Fox', price: 180 },
+  { id: 'panda', emoji: '🐼', name: 'Panda', price: 250 },
+  { id: 'owl', emoji: '🦉', name: 'Owl', price: 130 },
+  { id: 'butterfly', emoji: '🦋', name: 'Butterfly', price: 110 },
+];
+
+function getCustomHabits() {
+  try { return JSON.parse(localStorage.getItem(HABIT_KEY)) || []; } catch { return []; }
+}
+function setCustomHabits(h) { localStorage.setItem(HABIT_KEY, JSON.stringify(h)); }
+
+function getWeeklyGoals() {
+  try { return JSON.parse(localStorage.getItem(GOALS_KEY)) || []; } catch { return []; }
+}
+function setWeeklyGoals(g) { localStorage.setItem(GOALS_KEY, JSON.stringify(g)); }
+
+function getWeeklyReviews() {
+  try { return JSON.parse(localStorage.getItem(REVIEWS_KEY)) || []; } catch { return []; }
+}
+function setWeeklyReviews(r) { localStorage.setItem(REVIEWS_KEY, JSON.stringify(r)); }
+
+function getPetData() {
+  try { return JSON.parse(localStorage.getItem(PET_KEY)) || { coins: 0, animals: [], lastLevel: 0 }; } catch { return { coins: 0, animals: [], lastLevel: 0 }; }
+}
+function setPetData(d) { localStorage.setItem(PET_KEY, JSON.stringify(d)); }
+
+function getWeekId(date) {
+  const d = date ? new Date(date) : new Date();
+  const start = new Date(d);
+  start.setDate(start.getDate() - start.getDay());
+  return start.toISOString().slice(0, 10);
 }
 
 // ===== DAILY ISLAMIC LESSONS =====
@@ -2082,6 +2307,15 @@ function scoreEntry(entry) {
   if (entry.grateful && entry.grateful.trim()) pts += 5;
   if (entry.learned && entry.learned.trim()) pts += 5;
   if (entry.doBetter && entry.doBetter.trim()) pts += 5;
+  // Morning discipline bonus
+  const disc = entry.morningDiscipline || [];
+  pts += disc.length * 5;
+  if (disc.length === 3) pts += 5; // bonus for all 3
+  // Custom habits bonus
+  const hDone = (entry.habitsCompleted || []).length;
+  const hTotal = (entry.habitsTotal || 0);
+  pts += hDone * 3;
+  if (hTotal > 0 && hDone === hTotal) pts += 5; // bonus for all habits
   return pts;
 }
 
@@ -2171,6 +2405,24 @@ function saveEntry() {
     if (document.getElementById('salah' + s).checked) salah.push(s);
   });
 
+  // Morning discipline
+  const morningDiscipline = [];
+  if (document.getElementById('noPhoneAM').checked) morningDiscipline.push('noPhone');
+  if (document.getElementById('madeMyBed').checked) morningDiscipline.push('bed');
+  if (document.getElementById('morningAdhkar').checked) morningDiscipline.push('adhkar');
+
+  // Custom habits
+  const customHabits = getCustomHabits();
+  const habitsCompleted = [];
+  customHabits.forEach((h, i) => {
+    const cb = document.getElementById('habit_' + i);
+    if (cb && cb.checked) habitsCompleted.push(h);
+  });
+
+  // Get old level before saving
+  const oldStreaks = calcStreaks(data);
+  const oldLevel = getLevelInfo(oldStreaks.totalXP).level;
+
   const entry = {
     date,
     sleepStart: document.getElementById('sleepStart').value,
@@ -2183,6 +2435,9 @@ function saveEntry() {
     grateful: document.getElementById('grateful').value,
     learned: document.getElementById('learned').value,
     doBetter: document.getElementById('doBetter').value,
+    morningDiscipline,
+    habitsCompleted,
+    habitsTotal: customHabits.length,
   };
   entry.score = scoreEntry(entry);
 
@@ -2191,8 +2446,23 @@ function saveEntry() {
 
   data.sort((a,b) => new Date(a.date) - new Date(b.date));
   setData(data);
+
+  // Check for level up → award coins
+  const newStreaks = calcStreaks(data);
+  const newLevel = getLevelInfo(newStreaks.totalXP).level;
+  if (newLevel > oldLevel) {
+    const levelsGained = newLevel - oldLevel;
+    const coinsEarned = levelsGained * COINS_PER_LEVEL;
+    const pet = getPetData();
+    pet.coins += coinsEarned;
+    pet.lastLevel = newLevel;
+    setPetData(pet);
+    showToast(`LEVEL UP! 🎉 +${coinsEarned} coins earned!`);
+  } else {
+    showToast(`+${entry.score} XP earned! 🌟`);
+  }
+
   refreshAll();
-  showToast(`+${entry.score} XP earned! 🌟`);
 
   // Reset form
   selectedMood = 0;
@@ -2200,6 +2470,10 @@ function saveEntry() {
   ['sleepStart','sleepEnd','procTime','quranTime','grateful','learned','doBetter'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('procSource').value = '';
   ['Fajr','Dhuhr','Asr','Maghrib','Isha'].forEach(s => document.getElementById('salah'+s).checked = false);
+  document.getElementById('noPhoneAM').checked = false;
+  document.getElementById('madeMyBed').checked = false;
+  document.getElementById('morningAdhkar').checked = false;
+  document.querySelectorAll('#dailyHabitsChecks input[type="checkbox"]').forEach(cb => cb.checked = false);
 }
 
 // ===== TOAST =====
@@ -2265,6 +2539,12 @@ function refreshAll() {
 
   // Islamic Lesson
   renderLesson(false);
+
+  // New features
+  renderWeeklyGoals();
+  renderCustomHabits();
+  renderWeeklyReview();
+  renderPetStore();
 
   // AI Progress Analysis
   analyzeProgress();
@@ -2588,6 +2868,268 @@ function importData(event) {
 
 
 // ===== AI PROGRESS ANALYZER =====
+// ===== WEEKLY GOALS =====
+function renderWeeklyGoals() {
+  const weekId = getWeekId();
+  const allGoals = getWeeklyGoals();
+  const thisWeek = allGoals.find(g => g.weekId === weekId);
+  const container = document.getElementById('activeGoals');
+
+  if (thisWeek && thisWeek.goals.length > 0) {
+    container.innerHTML = '<h4 style="color:var(--accent4);font-size:0.8rem;margin-bottom:6px;">This Week\'s Goals</h4>' +
+      thisWeek.goals.map((g, i) => `
+        <div class="goal-item ${g.done ? 'done' : ''}" onclick="toggleGoal(${i})">
+          <span class="goal-check">${g.done ? '✅' : '⬜'}</span>
+          <span class="goal-text">${g.text}</span>
+        </div>
+      `).join('');
+    // Pre-fill inputs
+    thisWeek.goals.forEach((g, i) => {
+      const inp = document.getElementById('goalInput' + (i + 1));
+      if (inp) inp.value = g.text;
+    });
+  } else {
+    container.innerHTML = '<p style="color:var(--text-dim);font-size:0.75rem;">Set 3 goals for this week above!</p>';
+  }
+}
+
+function saveWeeklyGoals() {
+  const goals = [];
+  for (let i = 1; i <= 3; i++) {
+    const val = document.getElementById('goalInput' + i).value.trim();
+    if (val) goals.push({ text: val, done: false });
+  }
+  if (!goals.length) { showToast('Enter at least one goal!'); return; }
+
+  const weekId = getWeekId();
+  const allGoals = getWeeklyGoals();
+  const existing = allGoals.findIndex(g => g.weekId === weekId);
+
+  // Preserve done status if editing
+  if (existing >= 0) {
+    const oldGoals = allGoals[existing].goals;
+    goals.forEach((g, i) => {
+      const match = oldGoals.find(o => o.text === g.text);
+      if (match) g.done = match.done;
+    });
+    allGoals[existing].goals = goals;
+  } else {
+    allGoals.push({ weekId, goals });
+  }
+  setWeeklyGoals(allGoals);
+  renderWeeklyGoals();
+  showToast('Goals saved! 🎯');
+}
+
+function toggleGoal(index) {
+  const weekId = getWeekId();
+  const allGoals = getWeeklyGoals();
+  const thisWeek = allGoals.find(g => g.weekId === weekId);
+  if (thisWeek && thisWeek.goals[index]) {
+    thisWeek.goals[index].done = !thisWeek.goals[index].done;
+    setWeeklyGoals(allGoals);
+    renderWeeklyGoals();
+  }
+}
+
+// ===== CUSTOM HABITS =====
+function renderCustomHabits() {
+  const habits = getCustomHabits();
+  const list = document.getElementById('customHabitsList');
+  const entryDiv = document.getElementById('customHabitsEntry');
+  const checksDiv = document.getElementById('dailyHabitsChecks');
+
+  // Render habits list in management section
+  if (habits.length === 0) {
+    list.innerHTML = '<p style="color:var(--text-dim);font-size:0.75rem;">No custom habits yet — add one above!</p>';
+    entryDiv.style.display = 'none';
+  } else {
+    list.innerHTML = habits.map((h, i) => `
+      <div class="habit-item">
+        <span>${h}</span>
+        <button class="habit-remove" onclick="removeCustomHabit(${i})">✕</button>
+      </div>
+    `).join('');
+    // Show in entry form
+    entryDiv.style.display = '';
+    checksDiv.innerHTML = habits.map((h, i) => `
+      <label class="discipline-check"><input type="checkbox" id="habit_${i}"> ${h}</label>
+    `).join('');
+  }
+}
+
+function addCustomHabit() {
+  const input = document.getElementById('newHabitInput');
+  const name = input.value.trim();
+  if (!name) { showToast('Enter a habit name!'); return; }
+  const habits = getCustomHabits();
+  if (habits.length >= 10) { showToast('Max 10 habits!'); return; }
+  if (habits.includes(name)) { showToast('Habit already exists!'); return; }
+  habits.push(name);
+  setCustomHabits(habits);
+  input.value = '';
+  renderCustomHabits();
+  showToast('Habit added! ✅');
+}
+
+function removeCustomHabit(index) {
+  const habits = getCustomHabits();
+  habits.splice(index, 1);
+  setCustomHabits(habits);
+  renderCustomHabits();
+}
+
+// ===== WEEKLY REVIEW =====
+function renderWeeklyReview() {
+  const reviews = getWeeklyReviews();
+  const container = document.getElementById('pastReviews');
+  const recent = reviews.slice(-4).reverse();
+
+  if (recent.length === 0) {
+    container.innerHTML = '<p style="color:var(--text-dim);font-size:0.75rem;">No reviews yet — reflect on your week above!</p>';
+    return;
+  }
+
+  container.innerHTML = recent.map(r => `
+    <div class="review-card">
+      <div class="review-week">Week of ${r.weekId}</div>
+      <div class="review-item"><strong>Went well:</strong> ${r.wentWell}</div>
+      <div class="review-item"><strong>Improve:</strong> ${r.toImprove}</div>
+      <div class="review-item"><strong>Next focus:</strong> ${r.nextFocus}</div>
+    </div>
+  `).join('');
+}
+
+function saveWeeklyReview() {
+  const wentWell = document.getElementById('wentWell').value.trim();
+  const toImprove = document.getElementById('toImprove').value.trim();
+  const nextFocus = document.getElementById('nextWeekFocus').value.trim();
+  if (!wentWell && !toImprove && !nextFocus) { showToast('Write at least one reflection!'); return; }
+
+  const weekId = getWeekId();
+  const reviews = getWeeklyReviews();
+  const existing = reviews.findIndex(r => r.weekId === weekId);
+
+  const review = { weekId, wentWell, toImprove, nextFocus };
+  if (existing >= 0) reviews[existing] = review;
+  else reviews.push(review);
+
+  setWeeklyReviews(reviews);
+  renderWeeklyReview();
+  document.getElementById('wentWell').value = '';
+  document.getElementById('toImprove').value = '';
+  document.getElementById('nextWeekFocus').value = '';
+  showToast('Review saved! 📖');
+}
+
+// ===== PET STORE =====
+function renderPetStore() {
+  const pet = getPetData();
+  const data = getData();
+  const streaks = calcStreaks(data);
+  const currentLevel = getLevelInfo(streaks.totalXP).level;
+
+  // Award coins for levels earned before pet system was added
+  if (pet.lastLevel < currentLevel && pet.lastLevel === 0) {
+    pet.coins += currentLevel * COINS_PER_LEVEL;
+    pet.lastLevel = currentLevel;
+    setPetData(pet);
+  }
+
+  document.getElementById('coinCount').textContent = pet.coins;
+
+  // Render farm
+  const farm = document.getElementById('petFarm');
+  if (pet.animals.length === 0) {
+    farm.innerHTML = '<p class="empty-farm">No pets yet! Visit the shop below 🛒</p>';
+  } else {
+    // Update hunger
+    updatePetHunger(pet);
+    farm.innerHTML = pet.animals.map((a, i) => {
+      const info = PET_SHOP_ITEMS.find(p => p.id === a.id);
+      const happyLevel = a.happiness >= 80 ? '😊' : a.happiness >= 50 ? '😐' : a.happiness >= 20 ? '😢' : '😭';
+      const barColor = a.happiness >= 80 ? 'var(--accent3)' : a.happiness >= 50 ? 'var(--accent4)' : 'var(--accent)';
+      return `
+        <div class="pet-card" onclick="feedPet(${i})">
+          <div class="pet-emoji">${info ? info.emoji : '🐾'}</div>
+          <div class="pet-name">${a.name}</div>
+          <div class="pet-happiness">
+            <div class="pet-bar">
+              <div class="pet-bar-fill" style="width:${a.happiness}%;background:${barColor}"></div>
+            </div>
+            <span class="pet-mood">${happyLevel}</span>
+          </div>
+          <div class="pet-feed-hint">Tap to feed 🍎</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // Render shop
+  const shop = document.getElementById('petShop');
+  const owned = new Set(pet.animals.map(a => a.id));
+  shop.innerHTML = PET_SHOP_ITEMS.filter(item => !owned.has(item.id)).map(item => `
+    <div class="pet-shop-item ${pet.coins < item.price ? 'cant-afford' : ''}" onclick="buyPet('${item.id}')">
+      <div class="shop-emoji">${item.emoji}</div>
+      <div class="shop-name">${item.name}</div>
+      <div class="shop-price">🪙 ${item.price}</div>
+    </div>
+  `).join('') || '<p style="color:var(--accent3);font-size:0.75rem;padding:8px;">You own all pets! 🎉</p>';
+}
+
+function buyPet(petId) {
+  const pet = getPetData();
+  const item = PET_SHOP_ITEMS.find(p => p.id === petId);
+  if (!item) return;
+  if (pet.animals.find(a => a.id === petId)) { showToast('You already own this pet!'); return; }
+  if (pet.coins < item.price) { showToast('Not enough coins! Keep leveling up! 🪙'); return; }
+
+  pet.coins -= item.price;
+  pet.animals.push({
+    id: item.id,
+    name: item.name,
+    happiness: 100,
+    lastFed: new Date().toISOString().slice(0, 10),
+  });
+  setPetData(pet);
+  renderPetStore();
+  showToast(`Welcome home, ${item.name}! ${item.emoji}`);
+}
+
+function feedPet(index) {
+  const pet = getPetData();
+  const animal = pet.animals[index];
+  if (!animal) return;
+
+  const today = new Date().toISOString().slice(0, 10);
+  if (animal.lastFed === today && animal.happiness >= 100) {
+    showToast(`${animal.name} is already full and happy! 😊`);
+    return;
+  }
+
+  animal.happiness = Math.min(100, animal.happiness + 30);
+  animal.lastFed = today;
+  setPetData(pet);
+  renderPetStore();
+  showToast(`Fed ${animal.name}! 🍎 +30 happiness`);
+}
+
+function updatePetHunger(pet) {
+  const today = new Date();
+  let changed = false;
+  pet.animals.forEach(a => {
+    if (a.lastFed) {
+      const lastFed = new Date(a.lastFed);
+      const daysSince = Math.floor((today - lastFed) / (1000 * 60 * 60 * 24));
+      if (daysSince > 0) {
+        a.happiness = Math.max(0, a.happiness - daysSince * 15);
+        changed = true;
+      }
+    }
+  });
+  if (changed) setPetData(pet);
+}
+
 function analyzeProgress() {
   const data = getData();
   const container = document.getElementById('aiAnalysis');
@@ -2679,6 +3221,35 @@ function analyzeProgress() {
     blocks.push({ type: 'positive', title: '🤲 Gratitude Champion', text: 'You\'ve been consistently logging what you\'re grateful for — this rewires your brain toward positivity and attracts more blessings.', hadith: '"If you are grateful, I will surely increase you." — Quran 14:7' });
   } else if (gratefulCount <= 1 && recent.length >= 5) {
     blocks.push({ type: 'tip', title: '🤲 Try Gratitude', text: 'Fill in the gratitude section more often — even writing "I woke up healthy" counts. Gratitude is scientifically proven to improve mood and is a direct cause of barakah in Islam.', hadith: '' });
+  }
+
+  // --- Morning Discipline Analysis ---
+  const discEntries = recent.filter(e => e.morningDiscipline && e.morningDiscipline.length > 0);
+  if (discEntries.length >= 3) {
+    const avgDisc = discEntries.reduce((s,e) => s + e.morningDiscipline.length, 0) / discEntries.length;
+    if (avgDisc >= 2.5) {
+      blocks.push({ type: 'positive', title: '🌅 Morning Warrior', text: `You\'re crushing your morning routine — averaging ${avgDisc.toFixed(1)}/3 disciplines. Winning the morning wins the day!`, hadith: '"O Allah, bless my ummah in their early mornings." — Tirmidhi (1212)' });
+    } else if (avgDisc < 1.5) {
+      blocks.push({ type: 'tip', title: '🌅 Morning Routine', text: 'Your morning discipline could use work. Try just one thing: put your phone across the room before bed so you can\'t reach it first thing.', hadith: '' });
+    }
+  }
+
+  // --- Custom Habits Analysis ---
+  const habitEntries = recent.filter(e => e.habitsTotal && e.habitsTotal > 0);
+  if (habitEntries.length >= 3) {
+    const avgRate = habitEntries.reduce((s,e) => s + (e.habitsCompleted||[]).length / e.habitsTotal, 0) / habitEntries.length;
+    if (avgRate >= 0.8) {
+      blocks.push({ type: 'positive', title: '✅ Habit Master', text: `You\'re completing ${(avgRate*100).toFixed(0)}% of your daily habits — unreal consistency! You\'re building the person you want to become.`, hadith: '"The most beloved deeds to Allah are those done consistently, even if they are small." — Bukhari' });
+    } else if (avgRate < 0.4) {
+      blocks.push({ type: 'tip', title: '✅ Habit Check', text: 'Your habit completion rate is low. Consider reducing the number of habits and focusing on 2-3 that matter most. Master those first.', hadith: '' });
+    }
+  }
+
+  // --- Pet Care Reminder ---
+  const petData = getPetData();
+  const hungryPets = petData.animals.filter(a => a.happiness < 40);
+  if (hungryPets.length > 0) {
+    blocks.push({ type: 'warning', title: '🐾 Hungry Pets!', text: `${hungryPets.map(p => p.name).join(', ')} ${hungryPets.length === 1 ? 'is' : 'are'} getting hungry! Don\'t forget to feed your pets today.`, hadith: '"A woman was punished because of a cat she imprisoned till it died. She did not give it food or water." — Bukhari (3482)' });
   }
 
   // --- Overall Score Trend ---
