@@ -109,53 +109,6 @@
   }
   @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
 
-  /* Badges */
-  .badges-section {
-    background: var(--card);
-    border-radius: 12px;
-    padding: 14px;
-    margin-bottom: 16px;
-    border: 1px solid var(--border);
-  }
-  .badges-section h3 { margin-bottom: 10px; font-size: 0.9rem; }
-  .badges-grid { display: flex; flex-wrap: wrap; gap: 8px; }
-  .badge {
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.1rem;
-    position: relative;
-    cursor: pointer;
-    transition: all 0.3s;
-  }
-  .badge.earned {
-    background: linear-gradient(135deg, var(--accent2), var(--accent));
-    box-shadow: 0 0 20px rgba(233, 69, 96, 0.3);
-    animation: badgePulse 2s infinite;
-  }
-  .badge.locked {
-    background: #222;
-    opacity: 0.4;
-    filter: grayscale(1);
-  }
-  .badge:hover { transform: scale(1.15); }
-  .badge .badge-tooltip {
-    display: none;
-    position: absolute;
-    bottom: -35px;
-    background: #333;
-    padding: 4px 10px;
-    border-radius: 6px;
-    font-size: 0.65rem;
-    white-space: nowrap;
-    z-index: 10;
-  }
-  .badge:hover .badge-tooltip { display: block; }
-  @keyframes badgePulse { 0%, 100% { box-shadow: 0 0 20px rgba(233,69,96,0.3); } 50% { box-shadow: 0 0 30px rgba(233,69,96,0.5); } }
-
   /* Charts Grid */
   .charts-grid {
     display: grid;
@@ -273,44 +226,6 @@
   .btn:hover { transform: translateY(-1px); box-shadow: 0 4px 15px rgba(233,69,96,0.3); }
 
 
-
-  /* Streak Calendar */
-  .calendar-section {
-    background: var(--card);
-    border-radius: 16px;
-    padding: 18px 20px;
-    margin-bottom: 25px;
-    border: 1px solid var(--border);
-    max-width: 380px;
-  }
-  .calendar-section h3 { margin-bottom: 10px; font-size: 0.9rem; }
-  .calendar-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 3px;
-  }
-  .cal-day-header {
-    text-align: center;
-    font-size: 0.55rem;
-    color: var(--text-dim);
-    padding: 2px;
-    font-weight: 600;
-  }
-  .cal-day {
-    aspect-ratio: 1;
-    border-radius: 5px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.6rem;
-    font-weight: 500;
-    position: relative;
-  }
-  .cal-day.empty { background: transparent; }
-  .cal-day.logged { background: var(--accent); color: white; }
-  .cal-day.missed { background: #2a2a4a; color: var(--text-dim); }
-  .cal-day.today { border: 2px solid var(--accent4); }
-  .cal-day.future { background: #1a1a25; color: #444; }
 
   /* Motivational Quote */
   .quote-card {
@@ -533,10 +448,6 @@
     .salah-check { font-size: 0.7rem; gap: 3px; }
     .salah-check input[type="checkbox"] { width: 15px; height: 15px; }
     .btn-save { padding: 9px 20px; font-size: 0.82rem; }
-    .badges-section { padding: 10px; }
-    .badges-section h3 { font-size: 0.8rem; margin-bottom: 8px; }
-    .badges-grid { gap: 6px; }
-    .badge { width: 34px; height: 34px; font-size: 0.9rem; }
     .xp-bar-container { padding: 10px; }
     .xp-bar-header { font-size: 0.7rem; }
     .xp-bar-bg { height: 10px; }
@@ -646,14 +557,52 @@
   }
   .discipline-check input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent3); cursor: pointer; }
 
-  /* Weekly Goals Section */
-  .weekly-goals-section, .custom-habits-section, .weekly-review-section {
-    background: var(--card); border-radius: 12px; padding: 16px;
-    margin-bottom: 16px; border: 1px solid var(--border);
+  /* Weekly Popup Toggle */
+  .weekly-toggle-row {
+    display: flex; gap: 8px; justify-content: center; margin-bottom: 14px;
   }
-  .weekly-goals-section h3, .custom-habits-section h3, .weekly-review-section h3 {
-    margin-bottom: 10px; font-size: 0.95rem;
+  .weekly-toggle-btn {
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    color: white; border: none; padding: 8px 20px; border-radius: 10px;
+    font-size: 0.82rem; font-weight: 600; cursor: pointer;
+    font-family: 'Poppins', sans-serif; transition: all 0.3s;
   }
+  .weekly-toggle-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(139,92,246,0.3); }
+
+  /* Popup Overlay */
+  .weekly-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+    z-index: 1000; align-items: center; justify-content: center;
+    backdrop-filter: blur(4px); animation: fadeIn 0.2s;
+  }
+  .weekly-overlay.open { display: flex; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .weekly-popup {
+    background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+    padding: 24px; max-width: 500px; width: 92%; max-height: 85vh; overflow-y: auto;
+    position: relative; animation: slideUp 0.25s ease-out;
+  }
+  @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  .popup-close {
+    position: absolute; top: 12px; right: 14px; background: none; border: none;
+    color: var(--text-dim); font-size: 1.2rem; cursor: pointer; z-index: 1;
+  }
+  .popup-close:hover { color: var(--accent); }
+  .popup-tabs {
+    display: flex; gap: 6px; margin-bottom: 16px;
+  }
+  .popup-tab {
+    flex: 1; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px;
+    background: transparent; color: var(--text-dim); font-size: 0.8rem; font-weight: 600;
+    cursor: pointer; font-family: 'Poppins', sans-serif; transition: all 0.2s;
+  }
+  .popup-tab.active {
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    color: white; border-color: transparent;
+  }
+  .popup-panel h3 { font-size: 0.95rem; margin-bottom: 12px; }
+
+  /* Goals in popup */
   .goal-inputs { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
   .goal-inputs input {
     background: #222240; border: 1px solid var(--border); border-radius: 8px;
@@ -672,29 +621,13 @@
   .goal-check { font-size: 0.9rem; }
   .goal-text { font-size: 0.82rem; }
 
-  /* Custom Habits Section */
-  .habit-add-row { display: flex; gap: 8px; margin-bottom: 12px; }
-  .habit-add-row input {
-    flex: 1; background: #222240; border: 1px solid var(--border); border-radius: 8px;
-    padding: 8px 10px; color: var(--text); font-family: 'Poppins', sans-serif; font-size: 0.82rem;
-  }
-  .habit-add-row input:focus { outline: none; border-color: var(--accent); }
-  .custom-habits-list { display: flex; flex-direction: column; gap: 6px; }
-  .habit-item {
-    display: flex; align-items: center; justify-content: space-between;
-    background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px;
-    font-size: 0.82rem;
-  }
-  .habit-remove { background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 0.8rem; padding: 2px 6px; }
-  .habit-remove:hover { color: var(--accent); }
-
-  /* Weekly Review Section */
-  .weekly-review-section textarea {
+  /* Review in popup */
+  .popup-panel textarea {
     width: 100%; background: #222240; border: 1px solid var(--border); border-radius: 8px;
     padding: 8px 10px; color: var(--text); font-family: 'Poppins', sans-serif;
     font-size: 0.82rem; resize: vertical; margin-bottom: 8px;
   }
-  .weekly-review-section textarea:focus { outline: none; border-color: var(--accent2); }
+  .popup-panel textarea:focus { outline: none; border-color: var(--accent2); }
   .past-reviews { margin-top: 10px; }
   .review-card {
     background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 8px;
@@ -706,7 +639,7 @@
 
   /* Pet Store Section */
   .pet-store-section {
-    background: linear-gradient(135deg, #1a1030, #15202e); border-radius: 12px; padding: 16px;
+    background: linear-gradient(135deg, #1a1030, #15202e); border-radius: 16px; padding: 16px;
     margin-bottom: 16px; border: 1px solid rgba(255,209,102,0.2);
     position: relative; overflow: hidden;
   }
@@ -714,37 +647,370 @@
     content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
     background: linear-gradient(90deg, #ffd166, #e94560, #8b5cf6);
   }
-  .pet-store-section h3, .pet-store-section h4 { margin-bottom: 8px; font-size: 0.95rem; }
-  .coin-display { font-size: 0.85rem; color: var(--accent4); font-weight: 600; margin-bottom: 12px; }
+  .pet-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .pet-header-row h3 { font-size: 0.95rem; margin: 0; }
+  .coin-display { font-size: 0.82rem; color: var(--accent4); font-weight: 600; }
+  .pet-feed-status { font-size: 0.6rem; padding: 3px 8px; border-radius: 20px; font-weight: 600; }
+  .pet-feed-status.fed { background: rgba(6,214,160,0.15); color: var(--accent3); }
+  .pet-feed-status.hungry { background: rgba(233,69,96,0.15); color: var(--accent); }
   .pet-farm {
-    display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; min-height: 50px;
-    padding: 12px; background: rgba(255,255,255,0.02); border-radius: 10px; border: 1px dashed var(--border);
+    position: relative; overflow: hidden;
+    width: 100%; height: 260px;
+    border-radius: 16px; margin-bottom: 10px;
+    border: 1px solid rgba(80,120,50,0.25);
+    /* Lush rolling field with depth */
+    background:
+      /* Dappled sunlight spots */
+      radial-gradient(ellipse 18% 14% at 22% 30%, rgba(180,220,80,0.10) 0%, transparent 100%),
+      radial-gradient(ellipse 14% 12% at 65% 20%, rgba(190,230,90,0.08) 0%, transparent 100%),
+      radial-gradient(ellipse 22% 16% at 80% 55%, rgba(160,210,70,0.07) 0%, transparent 100%),
+      radial-gradient(ellipse 16% 10% at 40% 70%, rgba(170,215,75,0.06) 0%, transparent 100%),
+      /* Soft shadow undulations (hills) */
+      radial-gradient(ellipse 45% 25% at 20% 90%, rgba(15,50,15,0.18) 0%, transparent 100%),
+      radial-gradient(ellipse 50% 20% at 75% 95%, rgba(18,55,18,0.14) 0%, transparent 100%),
+      radial-gradient(ellipse 35% 20% at 50% 85%, rgba(12,45,12,0.12) 0%, transparent 100%),
+      /* Main depth gradient — bright distant horizon to rich near ground */
+      linear-gradient(180deg,
+        #6db854 0%, #5fad48 8%, #54a340 16%, #4b9a39 24%,
+        #449234 32%, #3e8a2f 40%, #38822b 48%, #327a27 56%,
+        #2d7223 64%, #286a20 72%, #24621d 80%, #205a1a 88%,
+        #1c5217 100%);
   }
-  .pet-card {
-    display: flex; flex-direction: column; align-items: center; gap: 4px;
-    background: rgba(255,255,255,0.03); border-radius: 10px; padding: 10px;
-    border: 1px solid var(--border); min-width: 80px; cursor: pointer; transition: all 0.3s;
+  /* Layered grass texture */
+  .pet-farm::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 0;
+    background:
+      repeating-linear-gradient(180deg, transparent 0, transparent 7px, rgba(255,255,255,0.018) 7px, rgba(255,255,255,0.018) 8px),
+      repeating-linear-gradient(105deg, transparent 0, transparent 14px, rgba(0,0,0,0.015) 14px, rgba(0,0,0,0.015) 15px),
+      repeating-linear-gradient(90deg, transparent 0, transparent 30px, rgba(255,255,255,0.008) 30px, rgba(255,255,255,0.008) 32px);
   }
-  .pet-card:hover { border-color: var(--accent4); transform: translateY(-2px); }
-  .pet-card .pet-emoji { font-size: 1.8rem; }
-  .pet-card .pet-name { font-size: 0.65rem; color: var(--text); font-weight: 500; }
-  .pet-happiness { width: 100%; display: flex; align-items: center; gap: 4px; }
-  .pet-bar { flex: 1; height: 5px; background: #2a2a4a; border-radius: 3px; overflow: hidden; }
-  .pet-bar-fill { height: 100%; border-radius: 3px; transition: width 0.5s; }
-  .pet-mood { font-size: 0.6rem; }
-  .pet-feed-hint { font-size: 0.55rem; color: var(--text-dim); }
-  .empty-farm { color: var(--text-dim); font-size: 0.78rem; text-align: center; width: 100%; padding: 10px; }
-  .pet-shop { display: flex; flex-wrap: wrap; gap: 8px; }
+  /* Golden-hour sunlight glow + horizon haze */
+  .pet-farm::after {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background:
+      radial-gradient(ellipse 55% 45% at 25% 20%, rgba(255,250,180,0.09) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 35% at 85% 75%, rgba(255,240,160,0.05) 0%, transparent 70%),
+      linear-gradient(180deg, rgba(200,230,180,0.12) 0%, transparent 18%);
+    pointer-events: none; z-index: 0;
+  }
+  /* Foliage patch — soft circular grass tufts */
+  .foliage {
+    position: absolute; pointer-events: none; z-index: 1;
+    border-radius: 50%;
+    animation: foliageSway 4s ease-in-out infinite;
+    transform-origin: center bottom;
+  }
+  @keyframes foliageSway {
+    0%, 100% { transform: scaleX(1) rotate(-1deg); }
+    50% { transform: scaleX(1.04) rotate(1deg); }
+  }
+  /* Stylized tree */
+  .farm-tree {
+    position: absolute; pointer-events: none; z-index: 1;
+    display: flex; flex-direction: column; align-items: center;
+  }
+  .farm-tree .tree-top {
+    width: 28px; height: 22px; border-radius: 50% 50% 45% 45%;
+    background: radial-gradient(ellipse at 40% 40%, #4a9e38, #2d7a1e);
+    box-shadow: inset -4px -4px 6px rgba(0,0,0,0.15), inset 3px 3px 5px rgba(255,255,255,0.08);
+    position: relative;
+  }
+  .farm-tree .tree-top::after {
+    content: ''; position: absolute; top: -6px; left: 6px;
+    width: 16px; height: 14px; border-radius: 50%;
+    background: radial-gradient(ellipse at 40% 40%, #55aa42, #3d8f2c);
+  }
+  .farm-tree .tree-trunk {
+    width: 5px; height: 10px; border-radius: 1px;
+    background: linear-gradient(90deg, #6d5040, #8a6b55, #6d5040);
+    margin-top: -2px;
+  }
+  .farm-tree .tree-shadow {
+    width: 24px; height: 5px; border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(0,0,0,0.18), transparent 70%);
+  }
+  /* Wildflower with petals */
+  .wildflower {
+    position: absolute; z-index: 1; pointer-events: none;
+    animation: foliageSway 3.5s ease-in-out infinite;
+    transform-origin: bottom center;
+    display: flex; flex-direction: column; align-items: center;
+  }
+  .wildflower .wf-petals {
+    width: 7px; height: 7px; border-radius: 50%; position: relative;
+    box-shadow: -3px 0 0 0 currentColor, 3px 0 0 0 currentColor, 0 -3px 0 0 currentColor, 0 3px 0 0 currentColor;
+  }
+  .wildflower .wf-center {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+    width: 3px; height: 3px; border-radius: 50%; background: #FFD54F;
+  }
+  .wildflower .wf-stem {
+    width: 1.5px; height: 16px; border-radius: 0 0 1px 1px;
+    margin-top: -1px;
+  }
+  /* Rock */
+  .farm-rock {
+    position: absolute; pointer-events: none; z-index: 1;
+    border-radius: 40% 45% 50% 38%;
+    background: linear-gradient(145deg, #8a8a7a, #6e6e60, #7a7a6c);
+    box-shadow: inset -2px -2px 3px rgba(0,0,0,0.2), inset 1px 1px 2px rgba(255,255,255,0.1),
+                1px 2px 3px rgba(0,0,0,0.15);
+  }
+  /* Dirt path — winding */
+  .farm-path {
+    position: absolute; bottom: 12%; left: 5%; width: 90%; height: 16px;
+    background: linear-gradient(90deg,
+      transparent 0%, rgba(130,100,60,0.10) 10%, rgba(140,105,65,0.16) 25%,
+      rgba(145,108,68,0.18) 40%, rgba(140,105,65,0.16) 55%,
+      rgba(135,102,62,0.14) 70%, rgba(130,98,58,0.10) 85%, transparent 100%);
+    border-radius: 50%; z-index: 0; pointer-events: none; filter: blur(4px);
+  }
+  .farm-path-2 {
+    position: absolute; bottom: 14%; left: 15%; width: 60%; height: 10px;
+    background: linear-gradient(90deg, transparent 0%, rgba(125,95,55,0.08) 30%, rgba(130,100,60,0.12) 50%, rgba(125,95,55,0.08) 70%, transparent 100%);
+    border-radius: 50%; z-index: 0; pointer-events: none; filter: blur(5px); transform: rotate(-2deg);
+  }
+  /* Food bowl */
+  .food-bowl {
+    position: absolute; right: 8px; bottom: 12px; z-index: 5;
+    display: flex; flex-direction: column; align-items: center;
+    cursor: default; pointer-events: none;
+    transition: opacity 0.3s, transform 0.3s;
+  }
+  .food-bowl.has-food { pointer-events: auto; }
+  .food-bowl .bowl-food {
+    font-size: 1rem; position: relative; top: 6px; z-index: 2;
+    animation: foodBob 1.5s ease-in-out infinite;
+  }
+  .food-bowl .bowl-dish {
+    width: 34px; height: 14px;
+    background: linear-gradient(180deg, #B0BEC5 0%, #78909C 60%, #546E7A 100%);
+    border-radius: 0 0 50% 50% / 0 0 100% 100%;
+    box-shadow: inset 0 -2px 4px rgba(0,0,0,0.2), 0 2px 4px rgba(0,0,0,0.2);
+    position: relative;
+  }
+  .food-bowl .bowl-dish::before {
+    content: ''; position: absolute; top: -3px; left: -2px; right: -2px; height: 6px;
+    background: linear-gradient(180deg, #CFD8DC, #B0BEC5);
+    border-radius: 50%;
+  }
+  .food-bowl .bowl-shadow {
+    width: 32px; height: 5px; border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(0,0,0,0.2), transparent 70%);
+    margin-top: 1px;
+  }
+  .food-bowl.empty .bowl-food { display: none; }
+  @keyframes foodBob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-2px); }
+  }
+  @keyframes foodPop {
+    0% { transform: scale(0); opacity: 0; }
+    60% { transform: scale(1.3); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  /* Roaming pet sprite */
+  .pet-sprite {
+    position: absolute; cursor: pointer; z-index: 2;
+    display: flex; flex-direction: column; align-items: center; gap: 1px;
+    transition: left 3s ease-in-out, top 3s ease-in-out;
+    will-change: left, top;
+  }
+  .pet-sprite:hover { z-index: 10; }
+  .pet-sprite:hover .pet-tooltip { opacity: 1; transform: translateY(-4px) scale(1); }
+  .pet-sprite .pet-emoji {
+    display: block; width: 48px; height: 48px;
+    filter: drop-shadow(2px 3px 2px rgba(0,0,0,0.35));
+  }
+  .pet-sprite .pet-emoji svg { width: 100%; height: 100%; }
+  .pet-sprite .pet-shadow {
+    width: 36px; height: 8px;
+    background: radial-gradient(ellipse, rgba(0,0,0,0.3), transparent 70%);
+    border-radius: 50%;
+    margin-top: -5px;
+    animation: shadowPulse 3s ease-in-out infinite;
+  }
+  @keyframes shadowPulse {
+    0%, 100% { transform: scaleX(1); opacity: 0.3; }
+    50% { transform: scaleX(0.6); opacity: 0.15; }
+  }
+  .pet-tooltip {
+    position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%) translateY(0) scale(0.9);
+    background: rgba(20,20,40,0.92); border: 1px solid var(--border); border-radius: 8px;
+    padding: 5px 8px; white-space: nowrap; pointer-events: none;
+    opacity: 0; transition: all 0.25s ease; z-index: 20;
+    margin-bottom: 4px;
+  }
+  .pet-tooltip .tt-name { font-size: 0.6rem; font-weight: 700; color: var(--text); display: block; text-align: center; }
+  .pet-tooltip .tt-bar { width: 50px; height: 4px; background: #2a2a4a; border-radius: 3px; margin-top: 3px; overflow: hidden; }
+  .pet-tooltip .tt-fill { height: 100%; border-radius: 3px; }
+  .pet-tooltip .tt-mood { font-size: 0.55rem; text-align: center; display: block; margin-top: 2px; }
+  /* Facing direction */
+  .pet-sprite.facing-left .pet-emoji { transform: scaleX(-1); }
+  .empty-farm { color: var(--text-dim); font-size: 0.78rem; text-align: center; width: 100%; padding: 10px; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); }
+
+  /* Pet Animations — simple & clean with subtle 3D tilt */
+  @keyframes petIdle {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-5px) scale(1.03); }
+  }
+  @keyframes petBreathing {
+    0%, 100% { transform: scale(1) translateY(0); }
+    50% { transform: scale(1.06) translateY(-2px); }
+  }
+  @keyframes petWiggle {
+    0%, 100% { transform: rotate(0deg) translateY(0); }
+    15% { transform: rotate(-8deg) translateY(-3px); }
+    30% { transform: rotate(6deg) translateY(-5px); }
+    45% { transform: rotate(-5deg) translateY(-3px); }
+    60% { transform: rotate(4deg) translateY(-4px); }
+    75% { transform: rotate(-2deg) translateY(-2px); }
+    90% { transform: rotate(1deg) translateY(-1px); }
+  }
+  @keyframes petHop {
+    0%, 100% { transform: translateY(0) scaleY(1) scaleX(1); }
+    15% { transform: translateY(3px) scaleY(0.85) scaleX(1.1); }
+    35% { transform: translateY(-16px) scaleY(1.08) scaleX(0.95); }
+    55% { transform: translateY(-18px) scaleY(1.03) scaleX(1); }
+    75% { transform: translateY(-6px) scaleY(1); }
+    90% { transform: translateY(2px) scaleY(0.92) scaleX(1.05); }
+  }
+  @keyframes petWaddle {
+    0%, 100% { transform: translateX(0) rotate(0deg); }
+    20% { transform: translateX(-5px) rotate(-8deg); }
+    40% { transform: translateX(0) rotate(0deg) translateY(-2px); }
+    60% { transform: translateX(5px) rotate(8deg); }
+    80% { transform: translateX(0) rotate(0deg) translateY(-2px); }
+  }
+  @keyframes petFloat {
+    0%, 100% { transform: translateY(0) rotate(0deg) scale(1); }
+    25% { transform: translateY(-8px) rotate(3deg) scale(1.02); }
+    50% { transform: translateY(-12px) rotate(-2deg) scale(1); }
+    75% { transform: translateY(-6px) rotate(1deg) scale(1.01); }
+  }
+  @keyframes petGlow {
+    0%, 100% { filter: drop-shadow(1px 2px 1px rgba(0,0,0,0.4)) brightness(1); }
+    50% { filter: drop-shadow(1px 2px 1px rgba(0,0,0,0.4)) brightness(1.25) drop-shadow(0 0 10px rgba(255,200,80,0.5)); }
+  }
+  @keyframes petBounce {
+    0% { transform: scale(1); }
+    25% { transform: scale(0.9, 1.08) translateY(2px); }
+    50% { transform: scale(1.15, 0.9) translateY(-14px); }
+    70% { transform: scale(0.97) translateY(0); }
+    85% { transform: scale(1.05) translateY(-4px); }
+    100% { transform: scale(1); }
+  }
+  @keyframes petEat {
+    0%, 100% { transform: rotate(0deg) scale(1); }
+    12% { transform: rotate(-12deg) scale(1.08); }
+    24% { transform: rotate(10deg) scale(0.96); }
+    36% { transform: rotate(-8deg) scale(1.05); }
+    48% { transform: rotate(6deg) scale(0.98); }
+    60% { transform: rotate(-4deg) scale(1.02); }
+    75% { transform: rotate(2deg) scale(1); }
+  }
+  @keyframes heartFloat {
+    0% { opacity: 1; transform: translateY(0) scale(0.5); }
+    50% { opacity: 1; transform: translateY(-25px) scale(1.2); }
+    100% { opacity: 0; transform: translateY(-45px) scale(0.8); }
+  }
+  @keyframes sparkle {
+    0% { opacity: 0; transform: scale(0) rotate(0deg); }
+    40% { opacity: 1; transform: scale(1.2) rotate(150deg); }
+    100% { opacity: 0; transform: scale(0) rotate(360deg); }
+  }
+  @keyframes petSad {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    30% { transform: translateY(3px) rotate(-6deg); }
+    70% { transform: translateY(2px) rotate(4deg); }
+  }
+
+  /* Per-pet-type animations */
+  .pet-sprite[data-pet="hamster"] .pet-emoji { animation: petWiggle 2.5s ease-in-out infinite; }
+  .pet-sprite[data-pet="cat"] .pet-emoji { animation: petBreathing 3s ease-in-out infinite; }
+  .pet-sprite[data-pet="bunny"] .pet-emoji { animation: petHop 2s ease-in-out infinite; }
+  .pet-sprite[data-pet="duck"] .pet-emoji,
+  .pet-sprite[data-pet="penguin"] .pet-emoji { animation: petWaddle 2s ease-in-out infinite; }
+  .pet-sprite[data-pet="turtle"] .pet-emoji { animation: petBreathing 4s ease-in-out infinite; }
+  .pet-sprite[data-pet="fox"] .pet-emoji { animation: petWiggle 3s ease-in-out infinite; }
+  .pet-sprite[data-pet="owl"] .pet-emoji { animation: petFloat 3.5s ease-in-out infinite; }
+  .pet-sprite[data-pet="butterfly"] .pet-emoji { animation: petFloat 2.5s ease-in-out infinite; }
+  .pet-sprite[data-pet="panda"] .pet-emoji { animation: petBreathing 3.5s ease-in-out infinite; }
+  .pet-sprite[data-pet="unicorn"] .pet-emoji { animation: petFloat 3s ease-in-out infinite; filter: drop-shadow(1px 2px 1px rgba(0,0,0,0.4)) drop-shadow(0 0 6px rgba(200,130,255,0.35)); }
+  .pet-sprite[data-pet="dragon"] .pet-emoji { animation: petWiggle 2s ease-in-out infinite; filter: drop-shadow(1px 2px 1px rgba(0,0,0,0.4)) drop-shadow(0 0 6px rgba(255,100,50,0.35)); }
+  .pet-sprite[data-pet="phoenix"] .pet-emoji { animation: petFloat 2.5s ease-in-out infinite; }
+
+  .pet-sprite.eating .pet-emoji { animation: petEat 0.7s ease !important; }
+  .pet-sprite.bouncing .pet-emoji { animation: petBounce 0.6s ease !important; }
+  .pet-sprite.playing .pet-emoji { animation: petWiggle 0.8s ease !important; }
+  .pet-heart {
+    position: absolute; top: -10px; left: 50%; font-size: 1rem;
+    animation: heartFloat 1s ease-out forwards; pointer-events: none; z-index: 30;
+  }
+  .pet-sparkle {
+    position: absolute; font-size: 0.8rem; pointer-events: none; z-index: 30;
+    animation: sparkle 0.7s ease-out forwards;
+  }
+  /* Toy floating near pet */
+  .pet-toy {
+    position: absolute; font-size: 0.85rem; bottom: -2px; right: -14px;
+    animation: toyBob 2s ease-in-out infinite;
+    pointer-events: none; z-index: 3;
+    filter: drop-shadow(1px 1px 1px rgba(0,0,0,0.3));
+  }
+  @keyframes toyBob {
+    0%, 100% { transform: translateY(0) rotate(-5deg); }
+    50% { transform: translateY(-4px) rotate(5deg); }
+  }
+  @keyframes toyBounce {
+    0% { transform: translateY(0) scale(0.5) rotate(0deg); opacity: 0; }
+    30% { transform: translateY(-18px) scale(1.3) rotate(120deg); opacity: 1; }
+    60% { transform: translateY(-8px) scale(0.9) rotate(240deg); opacity: 1; }
+    100% { transform: translateY(0) scale(1) rotate(360deg); opacity: 1; }
+  }
+
+  /* Pet Shop / Food buttons */
+  .pet-shop-toggle { display: flex; gap: 8px; justify-content: center; margin-bottom: 10px; flex-wrap: wrap; }
+  .pet-shop-btn { font-size: 0.75rem !important; padding: 6px 14px !important; }
+  .pet-shop { display: none; padding-top: 8px; }
+  .shop-category { margin-bottom: 10px; }
+  .shop-cat-label { font-size: 0.7rem; font-weight: 700; margin-bottom: 6px; padding-left: 4px; }
+  .shop-cat-items { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
   .pet-shop-item {
-    display: flex; flex-direction: column; align-items: center; gap: 4px;
-    background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 10px;
-    padding: 10px 12px; cursor: pointer; transition: all 0.3s; min-width: 75px;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px;
+    padding: 10px 12px; cursor: pointer; transition: all 0.3s; min-width: 80px;
   }
-  .pet-shop-item:hover { border-color: var(--accent4); transform: translateY(-2px); }
-  .pet-shop-item.cant-afford { opacity: 0.4; cursor: not-allowed; }
-  .pet-shop-item .shop-emoji { font-size: 1.4rem; }
-  .pet-shop-item .shop-name { font-size: 0.6rem; color: var(--text); }
+  .pet-shop-item:hover { border-color: var(--accent4); transform: translateY(-3px); box-shadow: 0 6px 16px rgba(255,209,102,0.15); }
+  .pet-shop-item.cant-afford { opacity: 0.35; cursor: not-allowed; }
+  .pet-shop-item.locked-pet { opacity: 0.4; cursor: not-allowed; filter: grayscale(0.8); border-style: dashed; }
+  .pet-shop-item .shop-emoji { font-size: 1.6rem; }
+  .pet-shop-item .shop-name { font-size: 0.65rem; color: var(--text); font-weight: 600; }
+  .pet-shop-item .shop-desc { font-size: 0.5rem; color: var(--text-dim); text-align: center; max-width: 75px; line-height: 1.2; }
   .pet-shop-item .shop-price { font-size: 0.6rem; color: var(--accent4); font-weight: 600; }
+  /* Toy shop section */
+  .pet-toy-shop { display: none; padding-top: 8px; }
+  .pet-food-shop { display: none; padding-top: 8px; }
+  .food-shop-items { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+  .toy-shop-items { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+  .toy-assign-popup {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.6); z-index: 200; display: flex; align-items: center; justify-content: center;
+  }
+  .toy-assign-card {
+    background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px;
+    padding: 20px; max-width: 300px; width: 90%; text-align: center;
+  }
+  .toy-assign-card h4 { margin: 0 0 10px; font-size: 0.85rem; color: var(--text); }
+  .toy-assign-pets { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 8px; }
+  .toy-assign-pet {
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 10px;
+    padding: 8px 10px; cursor: pointer; transition: all 0.2s; min-width: 60px;
+  }
+  .toy-assign-pet:hover { border-color: var(--accent4); background: rgba(255,209,102,0.08); }
+  .toy-assign-pet .tap-emoji { font-size: 1.3rem; }
+  .toy-assign-pet .tap-name { font-size: 0.55rem; color: var(--text-dim); }
 
   @media (max-width: 768px) {
     .review-grid { grid-template-columns: 1fr; }
@@ -769,6 +1035,32 @@
   <div class="header">
     <h1>🌙 Lara's Accountability Tracker</h1>
     <p>every day is a chance to level up — bismillah</p>
+  </div>
+
+  <!-- Weekly Popup Toggle -->
+  <div class="weekly-toggle-row">
+    <button class="weekly-toggle-btn" onclick="openWeeklyPopup('goals')">🎯 Weekly Goals</button>
+    <button class="weekly-toggle-btn" onclick="openWeeklyPopup('review')">📖 Weekly Review</button>
+  </div>
+
+  <!-- Pet Farm -->
+  <div class="pet-store-section">
+    <div class="pet-header-row">
+      <h3>🐾 My Pet Farm</h3>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div class="pet-feed-status" id="petFeedStatus"></div>
+        <div class="coin-display">🪙 <span id="coinCount">0</span> coins</div>
+      </div>
+    </div>
+    <div class="pet-farm" id="petFarm"></div>
+    <div class="pet-shop-toggle">
+      <button class="btn pet-shop-btn" onclick="togglePetShop()">🛒 Pet Shop</button>
+      <button class="btn pet-shop-btn" onclick="toggleToyShop()">🧸 Toy Shop</button>
+      <button class="btn pet-shop-btn" onclick="toggleFoodShop()">🍽️ Food</button>
+    </div>
+    <div class="pet-shop" id="petShop"></div>
+    <div class="pet-toy-shop" id="petToyShop"></div>
+    <div class="pet-food-shop" id="petFoodShop"></div>
   </div>
 
   <!-- Motivational Quote -->
@@ -847,10 +1139,6 @@
           <label class="discipline-check"><input type="checkbox" id="morningAdhkar"> Morning adhkar</label>
         </div>
       </div>
-      <div class="field full-width" id="customHabitsEntry" style="display:none;">
-        <label>Daily Habits ✅</label>
-        <div class="discipline-checks" id="dailyHabitsChecks"></div>
-      </div>
       <div class="field full-width">
         <label>Mood</label>
         <div class="mood-selector">
@@ -926,17 +1214,7 @@
     </div>
   </div>
 
-  <!-- Badges -->
-  <div class="badges-section">
-    <h3>🎖️ Badges</h3>
-    <div class="badges-grid" id="badgesGrid"></div>
-  </div>
 
-  <!-- Streak Calendar -->
-  <div class="calendar-section">
-    <h3>📅 March 2026 — Activity Heatmap</h3>
-    <div class="calendar-grid" id="calendarGrid"></div>
-  </div>
 
   <!-- Charts -->
   <div class="charts-grid">
@@ -966,52 +1244,6 @@
     </div>
   </div>
 
-  <!-- Weekly Goals -->
-  <div class="weekly-goals-section">
-    <h3>🎯 Weekly Goals</h3>
-    <div id="weeklyGoalsContainer">
-      <div class="goal-inputs">
-        <input type="text" id="goalInput1" placeholder="Goal 1..." maxlength="100">
-        <input type="text" id="goalInput2" placeholder="Goal 2..." maxlength="100">
-        <input type="text" id="goalInput3" placeholder="Goal 3..." maxlength="100">
-      </div>
-      <button class="btn" onclick="saveWeeklyGoals()">Save Goals</button>
-      <div id="activeGoals" class="active-goals"></div>
-    </div>
-  </div>
-
-  <!-- Custom Habit Tracker -->
-  <div class="custom-habits-section">
-    <h3>📋 My Habits</h3>
-    <div class="habit-add-row">
-      <input type="text" id="newHabitInput" placeholder="New habit name..." maxlength="40">
-      <button class="btn" onclick="addCustomHabit()">+ Add</button>
-    </div>
-    <div id="customHabitsList" class="custom-habits-list"></div>
-  </div>
-
-  <!-- Weekly Review -->
-  <div class="weekly-review-section">
-    <h3>📖 Weekly Review</h3>
-    <div id="weeklyReviewContainer">
-      <textarea id="wentWell" placeholder="What went well this week?" rows="3"></textarea>
-      <textarea id="toImprove" placeholder="What can I improve?" rows="3"></textarea>
-      <textarea id="nextWeekFocus" placeholder="Focus for next week?" rows="3"></textarea>
-      <button class="btn" onclick="saveWeeklyReview()">Save Review</button>
-      <div id="pastReviews" class="past-reviews"></div>
-    </div>
-  </div>
-
-  <!-- Pet Store -->
-  <div class="pet-store-section">
-    <h3>🐾 My Pet Farm</h3>
-    <div class="coin-display">🪙 <span id="coinCount">0</span> coins</div>
-    <div class="pet-farm" id="petFarm">
-      <p class="empty-farm">No pets yet! Visit the shop below 🛒</p>
-    </div>
-    <h4>🛒 Pet Shop</h4>
-    <div class="pet-shop" id="petShop"></div>
-  </div>
 
   <!-- History -->
   <div class="history-section">
@@ -1023,6 +1255,37 @@
   </div>
 
 
+</div>
+
+<!-- Weekly Popup -->
+<div class="weekly-overlay" id="weeklyOverlay" onclick="closeWeeklyPopup()">
+  <div class="weekly-popup" onclick="event.stopPropagation()">
+    <button class="popup-close" onclick="closeWeeklyPopup()">✕</button>
+    <div class="popup-tabs">
+      <button class="popup-tab active" id="tabGoals" onclick="switchPopupTab('goals')">🎯 Goals</button>
+      <button class="popup-tab" id="tabReview" onclick="switchPopupTab('review')">📖 Review</button>
+    </div>
+    <!-- Goals Panel -->
+    <div class="popup-panel" id="panelGoals">
+      <h3>🎯 This Week's Goals</h3>
+      <div class="goal-inputs">
+        <input type="text" id="goalInput1" placeholder="Goal 1..." maxlength="100">
+        <input type="text" id="goalInput2" placeholder="Goal 2..." maxlength="100">
+        <input type="text" id="goalInput3" placeholder="Goal 3..." maxlength="100">
+      </div>
+      <button class="btn" onclick="saveWeeklyGoals()">Save Goals</button>
+      <div id="activeGoals" class="active-goals"></div>
+    </div>
+    <!-- Review Panel -->
+    <div class="popup-panel" id="panelReview" style="display:none;">
+      <h3>📖 Weekly Review</h3>
+      <textarea id="wentWell" placeholder="What went well this week?" rows="3"></textarea>
+      <textarea id="toImprove" placeholder="What can I improve?" rows="3"></textarea>
+      <textarea id="nextWeekFocus" placeholder="Focus for next week?" rows="3"></textarea>
+      <button class="btn" onclick="saveWeeklyReview()">Save Review</button>
+      <div id="pastReviews" class="past-reviews"></div>
+    </div>
+  </div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -1042,29 +1305,67 @@ function setData(data) {
 }
 
 // ===== NEW FEATURE STORAGE =====
-const HABIT_KEY = 'laraCustomHabits';
 const GOALS_KEY = 'laraWeeklyGoals';
 const REVIEWS_KEY = 'laraWeeklyReviews';
 const PET_KEY = 'laraPetStore';
-const COINS_PER_LEVEL = 50;
+const COINS_PER_LEVEL = 20;
 
+const DAILY_LOG_COINS = 8;
 const PET_SHOP_ITEMS = [
-  { id: 'cat', emoji: '🐱', name: 'Cat', price: 100 },
-  { id: 'bunny', emoji: '🐰', name: 'Bunny', price: 150 },
-  { id: 'hamster', emoji: '🐹', name: 'Hamster', price: 80 },
-  { id: 'duck', emoji: '🦆', name: 'Duck', price: 120 },
-  { id: 'penguin', emoji: '🐧', name: 'Penguin', price: 200 },
-  { id: 'turtle', emoji: '🐢', name: 'Turtle', price: 90 },
-  { id: 'fox', emoji: '🦊', name: 'Fox', price: 180 },
-  { id: 'panda', emoji: '🐼', name: 'Panda', price: 250 },
-  { id: 'owl', emoji: '🦉', name: 'Owl', price: 130 },
-  { id: 'butterfly', emoji: '🦋', name: 'Butterfly', price: 110 },
+  { id: 'cat', emoji: '🐱', name: 'Cat', price: 100, desc: 'Loves naps & purring', category: 'common' },
+  { id: 'bunny', emoji: '🐰', name: 'Bunny', price: 150, desc: 'Hops around happily', category: 'common' },
+  { id: 'duck', emoji: '🦆', name: 'Duck', price: 120, desc: 'Waddles & quacks', category: 'common' },
+  { id: 'turtle', emoji: '🐢', name: 'Turtle', price: 90, desc: 'Slow but wise', category: 'common' },
+  { id: 'owl', emoji: '🦉', name: 'Owl', price: 130, desc: 'Night study buddy', category: 'common' },
+  { id: 'butterfly', emoji: '🦋', name: 'Butterfly', price: 110, desc: 'Free & colorful', category: 'common' },
+  { id: 'penguin', emoji: '🐧', name: 'Penguin', price: 200, desc: 'Cool & confident', category: 'rare' },
+  { id: 'fox', emoji: '🦊', name: 'Fox', price: 180, desc: 'Clever & curious', category: 'rare' },
+  { id: 'panda', emoji: '🐼', name: 'Panda', price: 250, desc: 'Zen & peaceful', category: 'rare' },
+  { id: 'unicorn', emoji: '🦄', name: 'Unicorn', price: 400, desc: 'Magical & majestic', category: 'legendary' },
+  { id: 'dragon', emoji: '🐉', name: 'Dragon', price: 500, desc: 'Powerful guardian', category: 'legendary' },
+  { id: 'phoenix', emoji: '🔥', name: 'Phoenix', price: 450, desc: 'Rises from ashes', category: 'legendary' },
 ];
 
-function getCustomHabits() {
-  try { return JSON.parse(localStorage.getItem(HABIT_KEY)) || []; } catch { return []; }
-}
-function setCustomHabits(h) { localStorage.setItem(HABIT_KEY, JSON.stringify(h)); }
+// Toys that can be bought for pets
+const PET_TOY_ITEMS = [
+  { id: 'ball', emoji: '⚽', name: 'Ball', price: 30, desc: 'Bouncy fun!' },
+  { id: 'yarn', emoji: '🧶', name: 'Yarn Ball', price: 25, desc: 'Cats love this' },
+  { id: 'frisbee', emoji: '🥏', name: 'Frisbee', price: 40, desc: 'Catch & fetch' },
+  { id: 'bell', emoji: '🔔', name: 'Bell Toy', price: 20, desc: 'Jingle jingle' },
+  { id: 'teddy', emoji: '🧸', name: 'Teddy Bear', price: 50, desc: 'A cuddly friend' },
+  { id: 'bone', emoji: '🦴', name: 'Chew Toy', price: 25, desc: 'Nom nom nom' },
+  { id: 'wheel', emoji: '🎡', name: 'Hamster Wheel', price: 35, desc: 'Run run run!' },
+  { id: 'mirror', emoji: '🪞', name: 'Mirror', price: 45, desc: 'So pretty!' },
+  { id: 'kite', emoji: '🪁', name: 'Kite', price: 55, desc: 'Fly high together' },
+  { id: 'skateboard', emoji: '🛹', name: 'Skateboard', price: 60, desc: 'Rad tricks' },
+];
+
+const PET_FOOD_ITEMS = [
+  { id: 'kibble', emoji: '🥣', name: 'Kibble', price: 1, desc: 'Basic crunch', happiness: 3 },
+  { id: 'carrot', emoji: '🥕', name: 'Carrot', price: 1, desc: 'Crunchy & fresh', happiness: 3 },
+  { id: 'apple', emoji: '🍎', name: 'Apple', price: 2, desc: 'Sweet & juicy', happiness: 5 },
+  { id: 'fish', emoji: '🐟', name: 'Fish', price: 2, desc: 'Omega-3 goodness', happiness: 5 },
+  { id: 'cookie', emoji: '🍪', name: 'Cookie', price: 3, desc: 'A tasty treat', happiness: 8 },
+  { id: 'cake', emoji: '🍰', name: 'Cake Slice', price: 4, desc: 'Special occasion', happiness: 10 },
+  { id: 'steak', emoji: '🥩', name: 'Premium Steak', price: 5, desc: 'Five-star meal!', happiness: 15 },
+];
+
+// SVG bodies for each pet (displayed in the farm)
+const PET_BODIES = {
+  hamster: '<svg viewBox="0 0 56 52"><ellipse cx="28" cy="34" rx="14" ry="11" fill="#E8A756"/><ellipse cx="28" cy="36" rx="9" ry="6" fill="#FBE8CC"/><circle cx="16" cy="16" r="6" fill="#E8A756"/><circle cx="40" cy="16" r="6" fill="#E8A756"/><circle cx="16" cy="16" r="3.5" fill="#F5C9A0"/><circle cx="40" cy="16" r="3.5" fill="#F5C9A0"/><circle cx="28" cy="24" r="11" fill="#F0C078"/><circle cx="22" cy="22" r="2.5" fill="#1a1a2e"/><circle cx="34" cy="22" r="2.5" fill="#1a1a2e"/><circle cx="22.8" cy="21.2" r="0.8" fill="#fff"/><circle cx="34.8" cy="21.2" r="0.8" fill="#fff"/><ellipse cx="28" cy="26" rx="2" ry="1.2" fill="#D4845A"/><circle cx="18" cy="26" r="4" fill="rgba(255,150,100,0.2)"/><circle cx="38" cy="26" r="4" fill="rgba(255,150,100,0.2)"/><ellipse cx="20" cy="44" rx="4.5" ry="2.5" fill="#D49760"/><ellipse cx="36" cy="44" rx="4.5" ry="2.5" fill="#D49760"/></svg>',
+  cat: '<svg viewBox="0 0 56 52"><ellipse cx="28" cy="34" rx="12" ry="11" fill="#9E9E9E"/><ellipse cx="28" cy="36" rx="8" ry="6" fill="#BDBDBD"/><polygon points="16,22 18,8 24,20" fill="#9E9E9E"/><polygon points="40,22 38,8 32,20" fill="#9E9E9E"/><polygon points="18,20 19,11 23,19" fill="#FFB0C0"/><polygon points="38,20 37,11 33,19" fill="#FFB0C0"/><circle cx="28" cy="24" r="10" fill="#BDBDBD"/><ellipse cx="22" cy="22" rx="2.5" ry="3" fill="#4CAF50"/><ellipse cx="34" cy="22" rx="2.5" ry="3" fill="#4CAF50"/><ellipse cx="22" cy="22" rx="1.2" ry="2.2" fill="#1a1a2e"/><ellipse cx="34" cy="22" rx="1.2" ry="2.2" fill="#1a1a2e"/><ellipse cx="22.6" cy="21" rx="0.5" ry="0.8" fill="#fff"/><ellipse cx="34.6" cy="21" rx="0.5" ry="0.8" fill="#fff"/><ellipse cx="28" cy="26" rx="1.5" ry="1" fill="#FFB0C0"/><line x1="12" y1="24" x2="20" y2="25" stroke="#888" stroke-width="0.6"/><line x1="12" y1="27" x2="20" y2="26.5" stroke="#888" stroke-width="0.6"/><line x1="44" y1="24" x2="36" y2="25" stroke="#888" stroke-width="0.6"/><line x1="44" y1="27" x2="36" y2="26.5" stroke="#888" stroke-width="0.6"/><path d="M40,32 Q48,28 46,42" fill="#9E9E9E" stroke="none"/><ellipse cx="21" cy="44" rx="4" ry="2" fill="#888"/><ellipse cx="35" cy="44" rx="4" ry="2" fill="#888"/></svg>',
+  bunny: '<svg viewBox="0 0 56 52"><ellipse cx="28" cy="36" rx="13" ry="11" fill="#F5F5F5"/><ellipse cx="28" cy="38" rx="8" ry="6" fill="#fff"/><ellipse cx="22" cy="8" rx="4" ry="12" fill="#F5F5F5" transform="rotate(-8 22 8)"/><ellipse cx="34" cy="8" rx="4" ry="12" fill="#F5F5F5" transform="rotate(8 34 8)"/><ellipse cx="22" cy="8" rx="2.5" ry="9" fill="#FFB0C0" transform="rotate(-8 22 8)"/><ellipse cx="34" cy="8" rx="2.5" ry="9" fill="#FFB0C0" transform="rotate(8 34 8)"/><circle cx="28" cy="28" r="10" fill="#fff"/><circle cx="23" cy="26" r="2.5" fill="#1a1a2e"/><circle cx="33" cy="26" r="2.5" fill="#1a1a2e"/><circle cx="23.7" cy="25.2" r="0.8" fill="#fff"/><circle cx="33.7" cy="25.2" r="0.8" fill="#fff"/><ellipse cx="28" cy="30" rx="1.5" ry="1" fill="#FFB0C0"/><path d="M26.5,31 L28,33 L29.5,31" stroke="#ccc" stroke-width="0.6" fill="none"/><circle cx="42" cy="38" r="4" fill="#F5F5F5"/><ellipse cx="21" cy="46" rx="4.5" ry="2.5" fill="#EEDBDB"/><ellipse cx="35" cy="46" rx="4.5" ry="2.5" fill="#EEDBDB"/></svg>',
+  duck: '<svg viewBox="0 0 56 52"><ellipse cx="28" cy="32" rx="13" ry="11" fill="#FFD54F"/><ellipse cx="28" cy="34" rx="9" ry="7" fill="#FFECB3"/><circle cx="28" cy="20" r="10" fill="#FFD54F"/><circle cx="23" cy="18" r="2" fill="#1a1a2e"/><circle cx="33" cy="18" r="2" fill="#1a1a2e"/><circle cx="23.6" cy="17.3" r="0.7" fill="#fff"/><circle cx="33.6" cy="17.3" r="0.7" fill="#fff"/><ellipse cx="28" cy="23" rx="5" ry="2.5" fill="#FF9800"/><path d="M14,28 Q8,32 12,36" fill="#FFD54F" stroke="#F9A825" stroke-width="0.5"/><path d="M42,28 Q48,32 44,36" fill="#FFD54F" stroke="#F9A825" stroke-width="0.5"/><path d="M19,44 L17,46 L25,46 L23,44" fill="#FF9800"/><path d="M33,44 L31,46 L39,46 L37,44" fill="#FF9800"/></svg>',
+  turtle: '<svg viewBox="0 0 56 52"><ellipse cx="28" cy="34" rx="16" ry="12" fill="#6D4C41"/><ellipse cx="28" cy="32" rx="15" ry="11" fill="#8D6E63"/><path d="M20,28 L28,24 L36,28 L33,36 L23,36 Z" fill="#6D4C41" opacity="0.4"/><line x1="28" y1="24" x2="28" y2="38" stroke="#6D4C41" stroke-width="0.5" opacity="0.3"/><line x1="20" y1="31" x2="36" y2="31" stroke="#6D4C41" stroke-width="0.5" opacity="0.3"/><ellipse cx="15" cy="26" rx="7" ry="5" fill="#66BB6A"/><circle cx="13" cy="25" r="1.5" fill="#1a1a2e"/><circle cx="17" cy="25" r="1.5" fill="#1a1a2e"/><circle cx="13.5" cy="24.4" r="0.5" fill="#fff"/><circle cx="17.5" cy="24.4" r="0.5" fill="#fff"/><ellipse cx="14" cy="42" rx="4" ry="3" fill="#66BB6A"/><ellipse cx="42" cy="42" rx="4" ry="3" fill="#66BB6A"/><ellipse cx="14" cy="30" rx="3" ry="2.5" fill="#66BB6A"/><ellipse cx="42" cy="30" rx="3" ry="2.5" fill="#66BB6A"/><path d="M42,36 L48,38" fill="none" stroke="#66BB6A" stroke-width="2" stroke-linecap="round"/></svg>',
+  owl: '<svg viewBox="0 0 56 52"><ellipse cx="28" cy="34" rx="13" ry="13" fill="#8D6E63"/><ellipse cx="28" cy="38" rx="8" ry="6" fill="#D7CCC8"/><path d="M18,18 L15,8 L22,16" fill="#8D6E63"/><path d="M38,18 L41,8 L34,16" fill="#8D6E63"/><circle cx="28" cy="24" r="11" fill="#A1887F"/><circle cx="22" cy="22" r="5" fill="#FFF"/><circle cx="34" cy="22" r="5" fill="#FFF"/><circle cx="22" cy="22" r="3.5" fill="#FF8F00"/><circle cx="34" cy="22" r="3.5" fill="#FF8F00"/><circle cx="22" cy="22" r="2" fill="#1a1a2e"/><circle cx="34" cy="22" r="2" fill="#1a1a2e"/><circle cx="22.7" cy="21.2" r="0.8" fill="#fff"/><circle cx="34.7" cy="21.2" r="0.8" fill="#fff"/><polygon points="28,26 26,29 30,29" fill="#FF8F00"/><path d="M14,28 Q8,34 14,44" fill="#795548"/><path d="M42,28 Q48,34 42,44" fill="#795548"/><ellipse cx="22" cy="46" rx="3.5" ry="2" fill="#A1887F"/><ellipse cx="34" cy="46" rx="3.5" ry="2" fill="#A1887F"/></svg>',
+  butterfly: '<svg viewBox="0 0 56 52"><ellipse cx="28" cy="28" rx="2.5" ry="11" fill="#4A148C"/><circle cx="28" cy="15" r="4" fill="#6A1B9A"/><circle cx="26" cy="14" r="1.5" fill="#1a1a2e"/><circle cx="30" cy="14" r="1.5" fill="#1a1a2e"/><circle cx="26.5" cy="13.4" r="0.5" fill="#fff"/><circle cx="30.5" cy="13.4" r="0.5" fill="#fff"/><line x1="26" y1="10" x2="23" y2="5" stroke="#6A1B9A" stroke-width="0.8"/><line x1="30" y1="10" x2="33" y2="5" stroke="#6A1B9A" stroke-width="0.8"/><circle cx="23" cy="5" r="1.2" fill="#AB47BC"/><circle cx="33" cy="5" r="1.2" fill="#AB47BC"/><ellipse cx="16" cy="22" rx="10" ry="8" fill="#FF7043" opacity="0.85"/><ellipse cx="40" cy="22" rx="10" ry="8" fill="#FF7043" opacity="0.85"/><ellipse cx="16" cy="22" rx="6" ry="5" fill="#FFAB91" opacity="0.6"/><ellipse cx="40" cy="22" rx="6" ry="5" fill="#FFAB91" opacity="0.6"/><ellipse cx="18" cy="34" rx="7" ry="6" fill="#42A5F5" opacity="0.8"/><ellipse cx="38" cy="34" rx="7" ry="6" fill="#42A5F5" opacity="0.8"/><ellipse cx="18" cy="34" rx="4" ry="3.5" fill="#90CAF9" opacity="0.5"/><ellipse cx="38" cy="34" rx="4" ry="3.5" fill="#90CAF9" opacity="0.5"/></svg>',
+  penguin: '<svg viewBox="0 0 56 52"><ellipse cx="28" cy="34" rx="13" ry="13" fill="#263238"/><ellipse cx="28" cy="36" rx="9" ry="10" fill="#ECEFF1"/><circle cx="28" cy="20" r="10" fill="#37474F"/><circle cx="28" cy="22" r="7" fill="#ECEFF1"/><circle cx="24" cy="20" r="2" fill="#1a1a2e"/><circle cx="32" cy="20" r="2" fill="#1a1a2e"/><circle cx="24.6" cy="19.3" r="0.7" fill="#fff"/><circle cx="32.6" cy="19.3" r="0.7" fill="#fff"/><polygon points="28,23 26,26 30,26" fill="#FF9800"/><path d="M14,28 Q8,36 14,44" fill="#263238"/><path d="M42,28 Q48,36 42,44" fill="#263238"/><ellipse cx="22" cy="47" rx="4" ry="2" fill="#FF9800"/><ellipse cx="34" cy="47" rx="4" ry="2" fill="#FF9800"/></svg>',
+  fox: '<svg viewBox="0 0 56 52"><ellipse cx="28" cy="34" rx="12" ry="11" fill="#E65100"/><ellipse cx="28" cy="36" rx="7" ry="6" fill="#FFF3E0"/><polygon points="16,22 13,8 23,18" fill="#E65100"/><polygon points="40,22 43,8 33,18" fill="#E65100"/><polygon points="15,18 14,10 21,17" fill="#1a1a2e"/><polygon points="41,18 42,10 35,17" fill="#1a1a2e"/><circle cx="28" cy="24" r="10" fill="#FF8F00"/><path d="M22,26 Q28,32 34,26 Q28,28 22,26" fill="#FFF3E0"/><circle cx="23" cy="22" r="1.5" fill="#1a1a2e"/><circle cx="33" cy="22" r="1.5" fill="#1a1a2e"/><circle cx="23.5" cy="21.4" r="0.5" fill="#fff"/><circle cx="33.5" cy="21.4" r="0.5" fill="#fff"/><ellipse cx="28" cy="26" rx="2" ry="1.2" fill="#1a1a2e"/><path d="M40,30 Q50,26 48,42 Q44,38 40,36" fill="#E65100"/><ellipse cx="47" cy="42" rx="3" ry="2" fill="#FFF3E0"/><ellipse cx="21" cy="44" rx="4" ry="2.5" fill="#BF360C"/><ellipse cx="35" cy="44" rx="4" ry="2.5" fill="#BF360C"/></svg>',
+  panda: '<svg viewBox="0 0 56 52"><ellipse cx="28" cy="36" rx="14" ry="11" fill="#F5F5F5"/><ellipse cx="28" cy="38" rx="8" ry="6" fill="#fff"/><circle cx="16" cy="14" r="6" fill="#263238"/><circle cx="40" cy="14" r="6" fill="#263238"/><circle cx="28" cy="26" r="12" fill="#fff"/><ellipse cx="21" cy="24" rx="5" ry="4" fill="#263238"/><ellipse cx="35" cy="24" rx="5" ry="4" fill="#263238"/><circle cx="22" cy="24" r="2" fill="#fff"/><circle cx="34" cy="24" r="2" fill="#fff"/><circle cx="22" cy="24" r="1.2" fill="#1a1a2e"/><circle cx="34" cy="24" r="1.2" fill="#1a1a2e"/><circle cx="22.5" cy="23.4" r="0.5" fill="#fff"/><circle cx="34.5" cy="23.4" r="0.5" fill="#fff"/><ellipse cx="28" cy="28" rx="2" ry="1.2" fill="#1a1a2e"/><path d="M26,29.5 Q28,31 30,29.5" stroke="#555" stroke-width="0.5" fill="none"/><ellipse cx="14" cy="34" rx="4" ry="6" fill="#263238"/><ellipse cx="42" cy="34" rx="4" ry="6" fill="#263238"/><ellipse cx="21" cy="46" rx="5" ry="2.5" fill="#263238"/><ellipse cx="35" cy="46" rx="5" ry="2.5" fill="#263238"/></svg>',
+  unicorn: '<svg viewBox="0 0 56 52"><ellipse cx="28" cy="36" rx="13" ry="11" fill="#F3E5F5"/><ellipse cx="28" cy="38" rx="8" ry="6" fill="#fff"/><polygon points="28,0 25,14 31,14" fill="#FFD54F"/><polygon points="28,0 26.5,14 28,12" fill="#FFF176" opacity="0.6"/><circle cx="28" cy="24" r="10" fill="#fff"/><circle cx="23" cy="22" r="2.5" fill="#CE93D8"/><circle cx="33" cy="22" r="2.5" fill="#CE93D8"/><circle cx="23" cy="22" r="1.5" fill="#1a1a2e"/><circle cx="33" cy="22" r="1.5" fill="#1a1a2e"/><circle cx="23.5" cy="21.3" r="0.5" fill="#fff"/><circle cx="33.5" cy="21.3" r="0.5" fill="#fff"/><path d="M24,28 Q28,30 32,28" stroke="#CE93D8" stroke-width="0.6" fill="none"/><path d="M16,14 Q10,10 13,20 Q15,16 18,18" fill="#E040FB" opacity="0.7"/><path d="M14,16 Q8,14 12,22 Q14,18 16,20" fill="#7C4DFF" opacity="0.6"/><path d="M13,18 Q7,18 11,24" fill="#448AFF" opacity="0.5"/><path d="M40,30 Q50,24 46,40 Q42,36 40,38" fill="#F3E5F5"/><path d="M45,34 Q50,30 48,40" fill="#E040FB" opacity="0.3"/><path d="M44,36 Q48,34 47,42" fill="#7C4DFF" opacity="0.3"/><ellipse cx="21" cy="44" rx="3.5" ry="2.5" fill="#CE93D8"/><ellipse cx="35" cy="44" rx="3.5" ry="2.5" fill="#CE93D8"/></svg>',
+  dragon: '<svg viewBox="0 0 56 52"><ellipse cx="28" cy="36" rx="13" ry="11" fill="#2E7D32"/><ellipse cx="28" cy="38" rx="8" ry="6" fill="#A5D6A7"/><path d="M24,24 L23,18 L27,22" fill="#1B5E20"/><path d="M32,24 L33,18 L29,22" fill="#1B5E20"/><circle cx="28" cy="28" r="10" fill="#43A047"/><path d="M22,18 L24,22 L26,18 L28,22 L30,18 L32,22 L34,18" fill="none" stroke="#1B5E20" stroke-width="1.5" stroke-linecap="round"/><circle cx="23" cy="26" r="2.5" fill="#FDD835"/><circle cx="33" cy="26" r="2.5" fill="#FDD835"/><ellipse cx="23" cy="26" rx="1" ry="2" fill="#1a1a2e"/><ellipse cx="33" cy="26" rx="1" ry="2" fill="#1a1a2e"/><ellipse cx="26" cy="31" rx="1" ry="0.6" fill="#1B5E20"/><ellipse cx="30" cy="31" rx="1" ry="0.6" fill="#1B5E20"/><path d="M12,24 Q4,20 8,34 Q10,30 12,32" fill="#2E7D32"/><path d="M6,22 Q2,24 6,30" fill="#1B5E20" opacity="0.4"/><path d="M44,24 Q52,20 48,34 Q46,30 44,32" fill="#2E7D32"/><path d="M50,22 Q54,24 50,30" fill="#1B5E20" opacity="0.4"/><path d="M40,36 Q46,38 44,44 Q42,40 38,42" fill="#2E7D32"/><polygon points="44,44 46,42 48,46" fill="#1B5E20"/><ellipse cx="21" cy="46" rx="4" ry="2.5" fill="#1B5E20"/><ellipse cx="35" cy="46" rx="4" ry="2.5" fill="#1B5E20"/></svg>',
+  phoenix: '<svg viewBox="0 0 56 52"><ellipse cx="28" cy="32" rx="10" ry="10" fill="#E53935"/><ellipse cx="28" cy="34" rx="6" ry="5" fill="#FFAB91"/><circle cx="28" cy="20" r="8" fill="#FF7043"/><path d="M24,12 Q22,4 26,10" fill="#FF5722"/><path d="M28,12 Q28,2 30,10" fill="#FFD54F"/><path d="M32,12 Q34,4 30,10" fill="#FF5722"/><circle cx="24" cy="18" r="2" fill="#FDD835"/><circle cx="32" cy="18" r="2" fill="#FDD835"/><circle cx="24" cy="18" r="1.2" fill="#1a1a2e"/><circle cx="32" cy="18" r="1.2" fill="#1a1a2e"/><circle cx="24.5" cy="17.4" r="0.5" fill="#fff"/><circle cx="32.5" cy="17.4" r="0.5" fill="#fff"/><polygon points="28,22 26,25 30,25" fill="#FFD54F"/><path d="M12,24 Q2,20 6,36 Q10,30 14,34" fill="#FF5722"/><path d="M6,22 Q0,26 4,34" fill="#FFD54F" opacity="0.5"/><path d="M44,24 Q54,20 50,36 Q46,30 42,34" fill="#FF5722"/><path d="M50,22 Q56,26 52,34" fill="#FFD54F" opacity="0.5"/><path d="M24,42 Q20,50 18,48" fill="#FF5722" opacity="0.7"/><path d="M28,42 Q28,52 26,50" fill="#FFD54F" opacity="0.6"/><path d="M32,42 Q36,50 38,48" fill="#FF5722" opacity="0.7"/><ellipse cx="22" cy="42" rx="3" ry="2" fill="#BF360C"/><ellipse cx="34" cy="42" rx="3" ry="2" fill="#BF360C"/></svg>'
+};
 
 function getWeeklyGoals() {
   try { return JSON.parse(localStorage.getItem(GOALS_KEY)) || []; } catch { return []; }
@@ -1077,7 +1378,20 @@ function getWeeklyReviews() {
 function setWeeklyReviews(r) { localStorage.setItem(REVIEWS_KEY, JSON.stringify(r)); }
 
 function getPetData() {
-  try { return JSON.parse(localStorage.getItem(PET_KEY)) || { coins: 0, animals: [], lastLevel: 0 }; } catch { return { coins: 0, animals: [], lastLevel: 0 }; }
+  let d;
+  try { d = JSON.parse(localStorage.getItem(PET_KEY)); } catch { d = null; }
+  if (!d) {
+    d = { coins: 0, animals: [{ id: 'hamster', name: 'Hamster', happiness: 100, lastFed: new Date().toISOString().slice(0,10) }], lastLevel: 0, toys: [] };
+    setPetData(d);
+  }
+  // Migrate: ensure starter hamster for existing users with no animals
+  if (d.animals.length === 0) {
+    d.animals.push({ id: 'hamster', name: 'Hamster', happiness: 100, lastFed: new Date().toISOString().slice(0,10) });
+    setPetData(d);
+  }
+  // Migrate: ensure toys array
+  if (!d.toys) { d.toys = []; setPetData(d); }
+  return d;
 }
 function setPetData(d) { localStorage.setItem(PET_KEY, JSON.stringify(d)); }
 
@@ -2256,25 +2570,6 @@ const quotes = [
   { text: "Whoever travels a path in search of knowledge, Allah will make easy for them a path to Paradise.", source: "Prophet Muhammad ﷺ (Muslim)" },
 ];
 
-// ===== BADGES =====
-const BADGES = [
-  { id: 'first_log', icon: '🌟', name: 'First Step', desc: 'Log your first day', check: d => d.length >= 1 },
-  { id: 'streak_3', icon: '🔥', name: '3-Day Fire', desc: '3 day streak', check: (d,s) => s.current >= 3 },
-  { id: 'streak_7', icon: '💪', name: 'Week Warrior', desc: '7 day streak', check: (d,s) => s.current >= 7 },
-  { id: 'streak_14', icon: '⚡', name: 'Unstoppable', desc: '14 day streak', check: (d,s) => s.current >= 14 },
-  { id: 'streak_30', icon: '👑', name: 'Monthly Queen', desc: '30 day streak', check: (d,s) => s.current >= 30 },
-  { id: 'quran_5', icon: '📖', name: 'Quran Lover', desc: '5 day Quran streak', check: (d,s) => s.quranStreak >= 5 },
-  { id: 'quran_15', icon: '🕌', name: 'Devoted Reader', desc: '15 day Quran streak', check: (d,s) => s.quranStreak >= 15 },
-  { id: 'no_proc', icon: '🎯', name: 'Laser Focus', desc: '0 procrastination in a day', check: d => d.some(e => e.procTime !== '' && parseFloat(e.procTime) === 0) },
-  { id: 'all_salah', icon: '🤲', name: 'Perfect Salah', desc: 'All 5 salah in a day', check: d => d.some(e => (e.salah||[]).length === 5) },
-  { id: 'salah_7', icon: '✨', name: 'Salah Streak', desc: '7 days all 5 salah', check: d => { let c=0,m=0; d.forEach(e=>{if((e.salah||[]).length===5)c++;else c=0;m=Math.max(m,c)}); return m>=7; }},
-  { id: 'mood_fire', icon: '🔥', name: 'On Fire', desc: '3 days in a row at 🔥 mood', check: d => { let c=0,m=0; d.forEach(e=>{if(e.mood==5)c++;else c=0;m=Math.max(m,c)}); return m>=3; }},
-  { id: 'lvl_5', icon: '🏅', name: 'Level 5', desc: 'Reach level 5', check: (d,s) => s.level >= 5 },
-  { id: 'lvl_10', icon: '💎', name: 'Level 10', desc: 'Reach level 10', check: (d,s) => s.level >= 10 },
-  { id: 'pts_500', icon: '🌙', name: '500 Club', desc: 'Earn 500 XP', check: (d,s) => s.totalXP >= 500 },
-  { id: 'pts_1000', icon: '🚀', name: '1K Legend', desc: 'Earn 1000 XP', check: (d,s) => s.totalXP >= 1000 },
-];
-
 // ===== LEVELS =====
 const LEVEL_NAMES = [
   'Beginner','Consistent','Dedicated','Disciplined','Warrior',
@@ -2311,11 +2606,6 @@ function scoreEntry(entry) {
   const disc = entry.morningDiscipline || [];
   pts += disc.length * 5;
   if (disc.length === 3) pts += 5; // bonus for all 3
-  // Custom habits bonus
-  const hDone = (entry.habitsCompleted || []).length;
-  const hTotal = (entry.habitsTotal || 0);
-  pts += hDone * 3;
-  if (hTotal > 0 && hDone === hTotal) pts += 5; // bonus for all habits
   return pts;
 }
 
@@ -2411,14 +2701,6 @@ function saveEntry() {
   if (document.getElementById('madeMyBed').checked) morningDiscipline.push('bed');
   if (document.getElementById('morningAdhkar').checked) morningDiscipline.push('adhkar');
 
-  // Custom habits
-  const customHabits = getCustomHabits();
-  const habitsCompleted = [];
-  customHabits.forEach((h, i) => {
-    const cb = document.getElementById('habit_' + i);
-    if (cb && cb.checked) habitsCompleted.push(h);
-  });
-
   // Get old level before saving
   const oldStreaks = calcStreaks(data);
   const oldLevel = getLevelInfo(oldStreaks.totalXP).level;
@@ -2436,8 +2718,6 @@ function saveEntry() {
     learned: document.getElementById('learned').value,
     doBetter: document.getElementById('doBetter').value,
     morningDiscipline,
-    habitsCompleted,
-    habitsTotal: customHabits.length,
   };
   entry.score = scoreEntry(entry);
 
@@ -2450,16 +2730,32 @@ function saveEntry() {
   // Check for level up → award coins
   const newStreaks = calcStreaks(data);
   const newLevel = getLevelInfo(newStreaks.totalXP).level;
+  const pet = getPetData();
+  let coinsMsg = '';
+
+  // Daily log coin reward
+  const todayStr = new Date().toISOString().slice(0, 10);
+  if (pet.lastLogDate !== todayStr) {
+    pet.coins += DAILY_LOG_COINS;
+    pet.lastLogDate = todayStr;
+    coinsMsg = `+${DAILY_LOG_COINS} 🪙 daily login bonus! `;
+    // Auto-feed all pets once per day
+    pet.animals.forEach(a => {
+      a.happiness = Math.min(100, a.happiness + 30);
+      a.lastFed = todayStr;
+    });
+  }
+
   if (newLevel > oldLevel) {
     const levelsGained = newLevel - oldLevel;
     const coinsEarned = levelsGained * COINS_PER_LEVEL;
-    const pet = getPetData();
     pet.coins += coinsEarned;
     pet.lastLevel = newLevel;
     setPetData(pet);
-    showToast(`LEVEL UP! 🎉 +${coinsEarned} coins earned!`);
+    showToast(`LEVEL UP! 🎉 +${coinsEarned} coins! ${coinsMsg}Pets fed! 🍎`);
   } else {
-    showToast(`+${entry.score} XP earned! 🌟`);
+    setPetData(pet);
+    showToast(`+${entry.score} XP earned! 🌟 ${coinsMsg}${pet.lastLogDate === todayStr ? 'Pets fed! 🍎' : ''}`);
   }
 
   refreshAll();
@@ -2473,7 +2769,6 @@ function saveEntry() {
   document.getElementById('noPhoneAM').checked = false;
   document.getElementById('madeMyBed').checked = false;
   document.getElementById('morningAdhkar').checked = false;
-  document.querySelectorAll('#dailyHabitsChecks input[type="checkbox"]').forEach(cb => cb.checked = false);
 }
 
 // ===== TOAST =====
@@ -2522,12 +2817,6 @@ function refreshAll() {
   document.getElementById('xpLabel').textContent = `${lvl.xpInLevel} / ${lvl.xpNeeded} XP`;
   document.getElementById('xpBarFill').style.width = `${(lvl.xpInLevel / lvl.xpNeeded * 100).toFixed(1)}%`;
 
-  // Badges
-  renderBadges(data, streaks);
-
-  // Calendar
-  renderCalendar(data);
-
   // Charts
   renderCharts(data);
 
@@ -2542,69 +2831,11 @@ function refreshAll() {
 
   // New features
   renderWeeklyGoals();
-  renderCustomHabits();
   renderWeeklyReview();
   renderPetStore();
 
   // AI Progress Analysis
   analyzeProgress();
-}
-
-function renderBadges(data, streaks) {
-  const grid = document.getElementById('badgesGrid');
-  grid.innerHTML = '';
-  BADGES.forEach(b => {
-    const earned = b.check(data, streaks);
-    const div = document.createElement('div');
-    div.className = `badge ${earned ? 'earned' : 'locked'}`;
-    div.innerHTML = `${b.icon}<span class="badge-tooltip">${b.name}: ${b.desc}</span>`;
-    grid.appendChild(div);
-  });
-}
-
-function renderCalendar(data) {
-  const grid = document.getElementById('calendarGrid');
-  grid.innerHTML = '';
-  const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-  days.forEach(d => {
-    const el = document.createElement('div');
-    el.className = 'cal-day-header';
-    el.textContent = d;
-    grid.appendChild(el);
-  });
-
-  const year = 2026, month = 2; // March
-  const firstDay = new Date(year, month, 1).getDay();
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const today = new Date();
-  const todayDate = today.getDate();
-  const todayMonth = today.getMonth();
-  const todayYear = today.getFullYear();
-  const loggedDates = new Set(data.map(e => e.date));
-
-  for (let i = 0; i < firstDay; i++) {
-    const el = document.createElement('div');
-    el.className = 'cal-day empty';
-    grid.appendChild(el);
-  }
-
-  for (let d = 1; d <= daysInMonth; d++) {
-    const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    const el = document.createElement('div');
-    const isToday = d === todayDate && month === todayMonth && year === todayYear;
-    const isFuture = new Date(year, month, d) > today;
-    const isLogged = loggedDates.has(dateStr);
-
-    let cls = 'cal-day';
-    if (isLogged) cls += ' logged';
-    else if (isFuture) cls += ' future';
-    else cls += ' missed';
-    if (isToday) cls += ' today';
-
-    el.className = cls;
-    el.textContent = d;
-    grid.appendChild(el);
-  }
 }
 
 function renderHistory() {
@@ -2932,51 +3163,21 @@ function toggleGoal(index) {
   }
 }
 
-// ===== CUSTOM HABITS =====
-function renderCustomHabits() {
-  const habits = getCustomHabits();
-  const list = document.getElementById('customHabitsList');
-  const entryDiv = document.getElementById('customHabitsEntry');
-  const checksDiv = document.getElementById('dailyHabitsChecks');
-
-  // Render habits list in management section
-  if (habits.length === 0) {
-    list.innerHTML = '<p style="color:var(--text-dim);font-size:0.75rem;">No custom habits yet — add one above!</p>';
-    entryDiv.style.display = 'none';
-  } else {
-    list.innerHTML = habits.map((h, i) => `
-      <div class="habit-item">
-        <span>${h}</span>
-        <button class="habit-remove" onclick="removeCustomHabit(${i})">✕</button>
-      </div>
-    `).join('');
-    // Show in entry form
-    entryDiv.style.display = '';
-    checksDiv.innerHTML = habits.map((h, i) => `
-      <label class="discipline-check"><input type="checkbox" id="habit_${i}"> ${h}</label>
-    `).join('');
-  }
+// ===== WEEKLY POPUP =====
+function openWeeklyPopup(tab) {
+  document.getElementById('weeklyOverlay').classList.add('open');
+  switchPopupTab(tab || 'goals');
+  renderWeeklyGoals();
+  renderWeeklyReview();
 }
-
-function addCustomHabit() {
-  const input = document.getElementById('newHabitInput');
-  const name = input.value.trim();
-  if (!name) { showToast('Enter a habit name!'); return; }
-  const habits = getCustomHabits();
-  if (habits.length >= 10) { showToast('Max 10 habits!'); return; }
-  if (habits.includes(name)) { showToast('Habit already exists!'); return; }
-  habits.push(name);
-  setCustomHabits(habits);
-  input.value = '';
-  renderCustomHabits();
-  showToast('Habit added! ✅');
+function closeWeeklyPopup() {
+  document.getElementById('weeklyOverlay').classList.remove('open');
 }
-
-function removeCustomHabit(index) {
-  const habits = getCustomHabits();
-  habits.splice(index, 1);
-  setCustomHabits(habits);
-  renderCustomHabits();
+function switchPopupTab(tab) {
+  document.getElementById('tabGoals').classList.toggle('active', tab === 'goals');
+  document.getElementById('tabReview').classList.toggle('active', tab === 'review');
+  document.getElementById('panelGoals').style.display = tab === 'goals' ? '' : 'none';
+  document.getElementById('panelReview').style.display = tab === 'review' ? '' : 'none';
 }
 
 // ===== WEEKLY REVIEW =====
@@ -3038,43 +3239,388 @@ function renderPetStore() {
 
   document.getElementById('coinCount').textContent = pet.coins;
 
-  // Render farm
-  const farm = document.getElementById('petFarm');
-  if (pet.animals.length === 0) {
-    farm.innerHTML = '<p class="empty-farm">No pets yet! Visit the shop below 🛒</p>';
-  } else {
-    // Update hunger
-    updatePetHunger(pet);
-    farm.innerHTML = pet.animals.map((a, i) => {
-      const info = PET_SHOP_ITEMS.find(p => p.id === a.id);
-      const happyLevel = a.happiness >= 80 ? '😊' : a.happiness >= 50 ? '😐' : a.happiness >= 20 ? '😢' : '😭';
-      const barColor = a.happiness >= 80 ? 'var(--accent3)' : a.happiness >= 50 ? 'var(--accent4)' : 'var(--accent)';
-      return `
-        <div class="pet-card" onclick="feedPet(${i})">
-          <div class="pet-emoji">${info ? info.emoji : '🐾'}</div>
-          <div class="pet-name">${a.name}</div>
-          <div class="pet-happiness">
-            <div class="pet-bar">
-              <div class="pet-bar-fill" style="width:${a.happiness}%;background:${barColor}"></div>
-            </div>
-            <span class="pet-mood">${happyLevel}</span>
-          </div>
-          <div class="pet-feed-hint">Tap to feed 🍎</div>
-        </div>
-      `;
-    }).join('');
+  // Daily feed status
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const fedToday = pet.lastLogDate === todayStr;
+  const feedEl = document.getElementById('petFeedStatus');
+  if (feedEl) {
+    feedEl.className = 'pet-feed-status ' + (fedToday ? 'fed' : 'hungry');
+    feedEl.textContent = fedToday ? '✅ Fed today' : '🍽️ Log today to feed!';
   }
 
-  // Render shop
+  // Update hunger
+  updatePetHunger(pet);
+
+  // Render farm as open field with roaming pets
+  const farm = document.getElementById('petFarm');
+  const farmW = farm.offsetWidth || 300;
+  const farmH = farm.offsetHeight || 220;
+
+  // Keep existing sprites if possible, otherwise rebuild
+  const existingSprites = farm.querySelectorAll('.pet-sprite');
+  const needsRebuild = existingSprites.length !== pet.animals.length;
+
+  if (needsRebuild) {
+    // Farm scenery: foliage patches, trees, flowers, rocks, path
+    let sceneryHtml = '<div class="farm-path"></div><div class="farm-path-2"></div>';
+
+    // Soft foliage patches (circular grass tufts across field)
+    const foliageColors = [
+      ['rgba(50,140,35,0.35)','rgba(40,120,28,0.25)'],
+      ['rgba(60,150,40,0.30)','rgba(45,125,30,0.20)'],
+      ['rgba(55,135,38,0.28)','rgba(48,130,32,0.22)'],
+      ['rgba(65,155,45,0.25)','rgba(50,135,35,0.18)'],
+    ];
+    for (let i = 0; i < 18; i++) {
+      const x = 2 + Math.random() * 92;
+      const y = 5 + Math.random() * 85;
+      const s = 14 + Math.random() * 28;
+      const pair = foliageColors[Math.floor(Math.random() * foliageColors.length)];
+      const delay = (Math.random() * 5).toFixed(1);
+      sceneryHtml += `<div class="foliage" style="left:${x.toFixed(1)}%;top:${y.toFixed(1)}%;width:${s.toFixed(0)}px;height:${(s*0.6).toFixed(0)}px;background:radial-gradient(ellipse,${pair[0]},${pair[1]},transparent 70%);animation-delay:${delay}s"></div>`;
+    }
+
+    // Small trees
+    [{x:6,y:8},{x:88,y:15},{x:52,y:5}].forEach(pos => {
+      sceneryHtml += `<div class="farm-tree" style="left:${pos.x}%;top:${pos.y}%"><div class="tree-top"></div><div class="tree-trunk"></div><div class="tree-shadow"></div></div>`;
+    });
+
+    // Wildflowers with petals
+    const flowerColors = ['#FF8A9E','#E8A0FF','#FFD066','#88CCFF','#FFB07A','#FF7EB3','#A0D8EF'];
+    for (let i = 0; i < 8; i++) {
+      const fx = 5 + Math.random() * 88;
+      const fy = 20 + Math.random() * 70;
+      const c = flowerColors[Math.floor(Math.random() * flowerColors.length)];
+      const stemG = 30 + Math.floor(Math.random() * 40);
+      sceneryHtml += `<div class="wildflower" style="left:${fx.toFixed(1)}%;top:${fy.toFixed(1)}%;animation-delay:${(Math.random()*4).toFixed(1)}s;color:${c}"><div class="wf-petals" style="background:${c}"><div class="wf-center"></div></div><div class="wf-stem" style="background:rgb(28,${70+stemG},22)"></div></div>`;
+    }
+
+    // Small rocks
+    for (let i = 0; i < 3; i++) {
+      const rx = 10 + Math.random() * 78;
+      const ry = 40 + Math.random() * 50;
+      const rs = 5 + Math.random() * 7;
+      sceneryHtml += `<div class="farm-rock" style="left:${rx.toFixed(1)}%;top:${ry.toFixed(1)}%;width:${rs.toFixed(0)}px;height:${(rs*0.65).toFixed(0)}px"></div>`;
+    }
+
+    let decorHtml = sceneryHtml;
+
+    farm.innerHTML = decorHtml + (pet.animals.length === 0 ? '<p class="empty-farm">Your farm is empty!</p>' :
+      pet.animals.map((a, i) => {
+        const shopItem = PET_SHOP_ITEMS.find(p => p.id === a.id);
+        const body = PET_BODIES[a.id] || `<span style="font-size:2rem">${(shopItem || {}).emoji || '🐾'}</span>`;
+        // Find toy assigned to this pet
+        const petToy = pet.toys.find(t => t.assignedTo === i);
+        const toyItem = petToy ? PET_TOY_ITEMS.find(t => t.id === petToy.id) : null;
+        const toyHtml = toyItem ? `<span class="pet-toy">${toyItem.emoji}</span>` : '';
+        const happyLevel = a.happiness >= 80 ? '😊' : a.happiness >= 50 ? '😐' : a.happiness >= 20 ? '😢' : '😭';
+        const barColor = a.happiness >= 80 ? '#06d6a0' : a.happiness >= 50 ? '#ffd166' : '#e94560';
+        const sadStyle = a.happiness < 30 ? 'animation: petSad 2s ease-in-out infinite !important;' : '';
+        // Random starting position
+        const sx = 8 + Math.random() * 75;
+        const sy = 10 + Math.random() * 58;
+        return `
+          <div class="pet-sprite" id="petCard${i}" data-pet="${a.id}" data-index="${i}"
+               style="left:${sx}%;top:${sy}%" onclick="feedPet(${i})">
+            <div class="pet-tooltip">
+              <span class="tt-name">${a.name} ${happyLevel}</span>
+              <div class="tt-bar"><div class="tt-fill" style="width:${a.happiness}%;background:${barColor}"></div></div>
+            </div>
+            <div class="pet-emoji" style="${sadStyle}">${body}</div>
+            <div class="pet-shadow"></div>
+            ${toyHtml}
+          </div>
+        `;
+      }).join(''));
+
+    // Start roaming for each pet
+    if (pet.animals.length > 0) startPetRoaming();
+  } else {
+    // Just update tooltips without re-rendering (preserve positions)
+    pet.animals.forEach((a, i) => {
+      const sprite = document.getElementById('petCard' + i);
+      if (!sprite) return;
+      const happyLevel = a.happiness >= 80 ? '😊' : a.happiness >= 50 ? '😐' : a.happiness >= 20 ? '😢' : '😭';
+      const barColor = a.happiness >= 80 ? '#06d6a0' : a.happiness >= 50 ? '#ffd166' : '#e94560';
+      const tt = sprite.querySelector('.tt-name');
+      if (tt) tt.textContent = `${a.name} ${happyLevel}`;
+      const fill = sprite.querySelector('.tt-fill');
+      if (fill) { fill.style.width = a.happiness + '%'; fill.style.background = barColor; }
+    });
+  }
+
+  // Render shop with categories — legendaries locked behind 30 logged days
   const shop = document.getElementById('petShop');
   const owned = new Set(pet.animals.map(a => a.id));
-  shop.innerHTML = PET_SHOP_ITEMS.filter(item => !owned.has(item.id)).map(item => `
-    <div class="pet-shop-item ${pet.coins < item.price ? 'cant-afford' : ''}" onclick="buyPet('${item.id}')">
-      <div class="shop-emoji">${item.emoji}</div>
-      <div class="shop-name">${item.name}</div>
-      <div class="shop-price">🪙 ${item.price}</div>
-    </div>
-  `).join('') || '<p style="color:var(--accent3);font-size:0.75rem;padding:8px;">You own all pets! 🎉</p>';
+  const totalLoggedDays = data.length;
+  const legendaryUnlocked = totalLoggedDays >= 30;
+  const available = PET_SHOP_ITEMS.filter(item => !owned.has(item.id));
+  if (available.length === 0) {
+    shop.innerHTML = '<p style="color:var(--accent3);font-size:0.75rem;padding:8px;text-align:center;">You own all pets! 🎉</p>';
+  } else {
+    const categories = [
+      { key: 'common', label: '🌿 Common', color: 'var(--accent3)' },
+      { key: 'rare', label: '💎 Rare', color: 'var(--accent2)' },
+      { key: 'legendary', label: '🌟 Legendary', color: 'var(--accent4)' },
+    ];
+    let shopHtml = '';
+    categories.forEach(cat => {
+      const items = available.filter(i => i.category === cat.key);
+      if (items.length === 0) return;
+      const isLocked = cat.key === 'legendary' && !legendaryUnlocked;
+      const lockLabel = isLocked ? ` <span style="font-size:0.55rem;opacity:0.7">— 🔒 ${30 - totalLoggedDays} days to unlock</span>` : '';
+      shopHtml += `<div class="shop-category"><div class="shop-cat-label" style="color:${cat.color}">${cat.label}${lockLabel}</div>`;
+      shopHtml += '<div class="shop-cat-items">';
+      shopHtml += items.map(item => {
+        const locked = isLocked;
+        const cantAfford = !locked && pet.coins < item.price;
+        const cls = locked ? 'locked-pet' : cantAfford ? 'cant-afford' : '';
+        return `
+          <div class="pet-shop-item ${cls}" onclick="${locked ? '' : "buyPet('" + item.id + "')"}">
+            <div class="shop-emoji">${locked ? '❓' : item.emoji}</div>
+            <div class="shop-name">${locked ? '???' : item.name}</div>
+            <div class="shop-desc">${locked ? 'Log 30 days to reveal' : item.desc}</div>
+            <div class="shop-price">${locked ? '🔒' : '🪙 ' + item.price}</div>
+          </div>
+        `;
+      }).join('');
+      shopHtml += '</div></div>';
+    });
+    shop.innerHTML = shopHtml;
+  }
+}
+
+function togglePetShop() {
+  const shop = document.getElementById('petShop');
+  const toyShop = document.getElementById('petToyShop');
+  const foodShop = document.getElementById('petFoodShop');
+  const isOpen = shop.style.display === 'block';
+  shop.style.display = isOpen ? 'none' : 'block';
+  if (!isOpen) { toyShop.style.display = 'none'; foodShop.style.display = 'none'; }
+}
+
+function toggleToyShop() {
+  const shop = document.getElementById('petShop');
+  const toyShop = document.getElementById('petToyShop');
+  const foodShop = document.getElementById('petFoodShop');
+  const isOpen = toyShop.style.display === 'block';
+  toyShop.style.display = isOpen ? 'none' : 'block';
+  if (!isOpen) { shop.style.display = 'none'; foodShop.style.display = 'none'; renderToyShop(); }
+}
+
+function toggleFoodShop() {
+  const shop = document.getElementById('petShop');
+  const toyShop = document.getElementById('petToyShop');
+  const foodShop = document.getElementById('petFoodShop');
+  const isOpen = foodShop.style.display === 'block';
+  foodShop.style.display = isOpen ? 'none' : 'block';
+  if (!isOpen) { shop.style.display = 'none'; toyShop.style.display = 'none'; renderFoodShop(); }
+}
+
+function renderFoodShop() {
+  const pet = getPetData();
+  const foodShop = document.getElementById('petFoodShop');
+  let html = '<div class="food-shop-items">';
+  PET_FOOD_ITEMS.forEach(item => {
+    const cantAfford = pet.coins < item.price;
+    html += `
+      <div class="pet-shop-item ${cantAfford ? 'cant-afford' : ''}" onclick="${cantAfford ? '' : "buyFood('" + item.id + "')" }">
+        <div class="shop-emoji">${item.emoji}</div>
+        <div class="shop-name">${item.name}</div>
+        <div class="shop-desc">${item.desc}</div>
+        <div class="shop-price">\ud83e\ude99 ${item.price} · +${item.happiness}\u2764\ufe0f</div>
+      </div>
+    `;
+  });
+  html += '</div>';
+  foodShop.innerHTML = html;
+}
+
+let bowlFood = null; // { id, emoji, happiness } currently in bowl
+
+function buyFood(foodId) {
+  const pet = getPetData();
+  const item = PET_FOOD_ITEMS.find(f => f.id === foodId);
+  if (!item || pet.coins < item.price) { showToast('Not enough coins!'); return; }
+  if (pet.animals.length === 0) { showToast('Get a pet first!'); return; }
+  if (bowlFood) { showToast('The bowl is already full! Wait for a pet to eat.'); return; }
+
+  pet.coins -= item.price;
+  setPetData(pet);
+  document.getElementById('coinCount').textContent = pet.coins;
+  renderFoodShop();
+
+  // Place food in bowl
+  bowlFood = { id: item.id, emoji: item.emoji, happiness: item.happiness };
+  placeFoodInBowl();
+}
+
+function placeFoodInBowl() {
+  const farm = document.getElementById('petFarm');
+  if (!farm || !bowlFood) return;
+
+  // Create or update bowl
+  let bowl = farm.querySelector('.food-bowl');
+  if (!bowl) {
+    bowl = document.createElement('div');
+    bowl.className = 'food-bowl';
+    bowl.innerHTML = '<div class="bowl-food"></div><div class="bowl-dish"></div><div class="bowl-shadow"></div>';
+    farm.appendChild(bowl);
+  }
+  bowl.classList.add('has-food');
+  bowl.classList.remove('empty');
+  const foodEl = bowl.querySelector('.bowl-food');
+  foodEl.textContent = bowlFood.emoji;
+  foodEl.style.animation = 'foodPop 0.4s ease forwards';
+  setTimeout(() => { foodEl.style.animation = 'foodBob 1.5s ease-in-out infinite'; }, 400);
+
+  showToast(`Food placed! A pet is heading over... \ud83c\udf7d\ufe0f`);
+
+  // Send a random pet to eat
+  sendPetToEat();
+}
+
+function sendPetToEat() {
+  const farm = document.getElementById('petFarm');
+  if (!farm || !bowlFood) return;
+  const pet = getPetData();
+  if (pet.animals.length === 0) return;
+
+  // Pick a random pet
+  const sprites = farm.querySelectorAll('.pet-sprite');
+  if (sprites.length === 0) return;
+  const idx = Math.floor(Math.random() * sprites.length);
+  const sprite = sprites[idx];
+
+  // Pause normal roaming for this pet
+  sprite.dataset.eating = 'true';
+
+  // Move pet to bowl position (right side, bottom area)
+  const targetX = 82;
+  const targetY = 68;
+  const oldX = parseFloat(sprite.style.left) || 50;
+  if (targetX < oldX) sprite.classList.add('facing-left');
+  else sprite.classList.remove('facing-left');
+  sprite.style.left = targetX + '%';
+  sprite.style.top = targetY + '%';
+
+  // After arrival, eat
+  setTimeout(() => {
+    if (!bowlFood) return;
+    const petIndex = parseInt(sprite.dataset.index);
+
+    // Eat animation
+    triggerPetAnim(petIndex, 'eating');
+
+    // Remove food from bowl
+    const bowl = farm.querySelector('.food-bowl');
+    if (bowl) {
+      bowl.classList.remove('has-food');
+      bowl.classList.add('empty');
+    }
+
+    // Happiness boost
+    const petData = getPetData();
+    if (petData.animals[petIndex]) {
+      petData.animals[petIndex].happiness = Math.min(100, petData.animals[petIndex].happiness + bowlFood.happiness);
+      petData.animals[petIndex].lastFed = new Date().toISOString().slice(0, 10);
+      setPetData(petData);
+    }
+
+    // Spawn hearts
+    spawnHearts(petIndex);
+    showToast(`${petData.animals[petIndex].name} enjoyed the ${bowlFood.emoji}! +${bowlFood.happiness}\u2764\ufe0f`);
+
+    bowlFood = null;
+    sprite.dataset.eating = 'false';
+
+    // Update tooltips
+    renderPetStore();
+  }, 3200); // Wait for walk transition (3s) + a little extra
+}
+
+function renderToyShop() {
+  const pet = getPetData();
+  const toyShop = document.getElementById('petToyShop');
+  let html = '<div class="toy-shop-items">';
+  PET_TOY_ITEMS.forEach(item => {
+    const cantAfford = pet.coins < item.price;
+    html += `
+      <div class="pet-shop-item ${cantAfford ? 'cant-afford' : ''}" onclick="${cantAfford ? '' : "buyToy('" + item.id + "')" }">
+        <div class="shop-emoji">${item.emoji}</div>
+        <div class="shop-name">${item.name}</div>
+        <div class="shop-desc">${item.desc}</div>
+        <div class="shop-price">🪙 ${item.price}</div>
+      </div>
+    `;
+  });
+  html += '</div>';
+  // Show owned toys
+  if (pet.toys.length > 0) {
+    html += '<div style="margin-top:10px;text-align:center;font-size:0.65rem;color:var(--text-dim);">Owned: ';
+    html += pet.toys.map(t => {
+      const ti = PET_TOY_ITEMS.find(x => x.id === t.id);
+      const owner = t.assignedTo !== undefined ? pet.animals[t.assignedTo]?.name : 'unassigned';
+      return ti ? `${ti.emoji} → ${owner}` : '';
+    }).filter(Boolean).join(' · ');
+    html += '</div>';
+  }
+  toyShop.innerHTML = html;
+}
+
+function buyToy(toyId) {
+  const pet = getPetData();
+  const item = PET_TOY_ITEMS.find(t => t.id === toyId);
+  if (!item) return;
+  if (pet.coins < item.price) { showToast('Not enough coins! 🪙'); return; }
+  if (pet.animals.length === 0) { showToast('Get a pet first!'); return; }
+
+  // If only 1 pet, assign directly
+  if (pet.animals.length === 1) {
+    finalizeToyPurchase(toyId, 0);
+    return;
+  }
+
+  // Show popup to pick which pet gets the toy
+  let popup = document.createElement('div');
+  popup.className = 'toy-assign-popup';
+  popup.onclick = (e) => { if (e.target === popup) popup.remove(); };
+  let card = `<div class="toy-assign-card">`;
+  card += `<h4>Give ${item.emoji} ${item.name} to which pet?</h4>`;
+  card += '<div class="toy-assign-pets">';
+  pet.animals.forEach((a, i) => {
+    const si = PET_SHOP_ITEMS.find(p => p.id === a.id);
+    card += `<div class="toy-assign-pet" onclick="finalizeToyPurchase('${toyId}', ${i}); this.closest('.toy-assign-popup').remove();">`;
+    card += `<span class="tap-emoji">${si ? si.emoji : '🐾'}</span>`;
+    card += `<span class="tap-name">${a.name}</span></div>`;
+  });
+  card += '</div></div>';
+  popup.innerHTML = card;
+  document.body.appendChild(popup);
+}
+
+function finalizeToyPurchase(toyId, petIndex) {
+  const pet = getPetData();
+  const item = PET_TOY_ITEMS.find(t => t.id === toyId);
+  if (!item || pet.coins < item.price) return;
+
+  pet.coins -= item.price;
+  // Remove any existing toy on that pet (swap it)
+  pet.toys = pet.toys.filter(t => t.assignedTo !== petIndex);
+  pet.toys.push({ id: toyId, assignedTo: petIndex });
+  // Happiness boost from new toy
+  if (pet.animals[petIndex]) {
+    pet.animals[petIndex].happiness = Math.min(100, pet.animals[petIndex].happiness + 10);
+  }
+  setPetData(pet);
+  renderPetStore();
+  renderToyShop();
+  showToast(`${pet.animals[petIndex].name} loves the ${item.name}! ${item.emoji}`);
+  // Play animation
+  setTimeout(() => {
+    triggerPetAnim(petIndex, 'playing');
+    spawnHearts(petIndex);
+  }, 200);
 }
 
 function buyPet(petId) {
@@ -3082,6 +3628,11 @@ function buyPet(petId) {
   const item = PET_SHOP_ITEMS.find(p => p.id === petId);
   if (!item) return;
   if (pet.animals.find(a => a.id === petId)) { showToast('You already own this pet!'); return; }
+  // Legendary pets require 30 logged days
+  if (item.category === 'legendary') {
+    const totalDays = getData().length;
+    if (totalDays < 30) { showToast(`Legendary pets unlock after 30 days of logging! (${totalDays}/30)`); return; }
+  }
   if (pet.coins < item.price) { showToast('Not enough coins! Keep leveling up! 🪙'); return; }
 
   pet.coins -= item.price;
@@ -3094,6 +3645,39 @@ function buyPet(petId) {
   setPetData(pet);
   renderPetStore();
   showToast(`Welcome home, ${item.name}! ${item.emoji}`);
+  // Bounce animation on newest pet
+  setTimeout(() => {
+    const sprite = document.getElementById('petCard' + (pet.animals.length - 1));
+    if (sprite) { sprite.classList.add('bouncing'); setTimeout(() => sprite.classList.remove('bouncing'), 600); }
+  }, 200);
+}
+
+// Pet roaming engine
+let petRoamInterval = null;
+function startPetRoaming() {
+  if (petRoamInterval) clearInterval(petRoamInterval);
+  // Initial move after short delay
+  setTimeout(movePetsRandomly, 500);
+  // Then every 3-5 seconds
+  petRoamInterval = setInterval(movePetsRandomly, 3500);
+}
+
+function movePetsRandomly() {
+  const farm = document.getElementById('petFarm');
+  if (!farm) return;
+  const sprites = farm.querySelectorAll('.pet-sprite');
+  sprites.forEach(sprite => {
+    // Skip pets walking to food bowl
+    if (sprite.dataset.eating === 'true') return;
+    const newX = 5 + Math.random() * 78;
+    const newY = 8 + Math.random() * 58;
+    const oldX = parseFloat(sprite.style.left) || 50;
+    // Flip direction based on movement
+    if (newX < oldX) sprite.classList.add('facing-left');
+    else sprite.classList.remove('facing-left');
+    sprite.style.left = newX + '%';
+    sprite.style.top = newY + '%';
+  });
 }
 
 function feedPet(index) {
@@ -3101,17 +3685,36 @@ function feedPet(index) {
   const animal = pet.animals[index];
   if (!animal) return;
 
-  const today = new Date().toISOString().slice(0, 10);
-  if (animal.lastFed === today && animal.happiness >= 100) {
-    showToast(`${animal.name} is already full and happy! 😊`);
-    return;
-  }
+  // Cosmetic interaction — tap to pet!
+  showToast(`${animal.name} loves the attention! 💕`);
+  setTimeout(() => {
+    triggerPetAnim(index, 'bouncing');
+    spawnHearts(index);
+  }, 50);
+}
 
-  animal.happiness = Math.min(100, animal.happiness + 30);
-  animal.lastFed = today;
-  setPetData(pet);
-  renderPetStore();
-  showToast(`Fed ${animal.name}! 🍎 +30 happiness`);
+function triggerPetAnim(index, cls) {
+  const sprite = document.getElementById('petCard' + index);
+  if (!sprite) return;
+  sprite.classList.add(cls);
+  setTimeout(() => sprite.classList.remove(cls), 700);
+}
+
+function spawnHearts(index) {
+  const sprite = document.getElementById('petCard' + index);
+  if (!sprite) return;
+  const hearts = ['❤️', '💕', '💖', '✨', '🌟'];
+  for (let i = 0; i < 4; i++) {
+    setTimeout(() => {
+      const h = document.createElement('span');
+      h.className = i < 3 ? 'pet-heart' : 'pet-sparkle';
+      h.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+      h.style.left = (-5 + Math.random() * 30) + 'px';
+      h.style.top = (-10 - Math.random() * 15) + 'px';
+      sprite.appendChild(h);
+      setTimeout(() => h.remove(), 1100);
+    }, i * 180);
+  }
 }
 
 function updatePetHunger(pet) {
@@ -3234,15 +3837,36 @@ function analyzeProgress() {
     }
   }
 
-  // --- Custom Habits Analysis ---
-  const habitEntries = recent.filter(e => e.habitsTotal && e.habitsTotal > 0);
-  if (habitEntries.length >= 3) {
-    const avgRate = habitEntries.reduce((s,e) => s + (e.habitsCompleted||[]).length / e.habitsTotal, 0) / habitEntries.length;
-    if (avgRate >= 0.8) {
-      blocks.push({ type: 'positive', title: '✅ Habit Master', text: `You\'re completing ${(avgRate*100).toFixed(0)}% of your daily habits — unreal consistency! You\'re building the person you want to become.`, hadith: '"The most beloved deeds to Allah are those done consistently, even if they are small." — Bukhari' });
-    } else if (avgRate < 0.4) {
-      blocks.push({ type: 'tip', title: '✅ Habit Check', text: 'Your habit completion rate is low. Consider reducing the number of habits and focusing on 2-3 that matter most. Master those first.', hadith: '' });
+  // --- Weekly Goals Analysis ---
+  const weekId = getWeekId();
+  const allGoals = getWeeklyGoals();
+  const thisWeekGoals = allGoals.find(g => g.weekId === weekId);
+  if (thisWeekGoals && thisWeekGoals.goals.length > 0) {
+    const done = thisWeekGoals.goals.filter(g => g.done).length;
+    const total = thisWeekGoals.goals.length;
+    if (done === total) {
+      blocks.push({ type: 'positive', title: '🎯 Goals Crushed!', text: `You completed all ${total} weekly goals — mashaAllah! Set new ones to keep the momentum going.`, hadith: '"Tie your camel, then put your trust in Allah." — Tirmidhi (2517)' });
+    } else if (done === 0) {
+      blocks.push({ type: 'tip', title: '🎯 Goals Waiting', text: `You have ${total} goal${total > 1 ? 's' : ''} set for this week but haven\'t completed any yet. Focus on knocking out just one today — small wins create big momentum.`, hadith: '' });
+    } else {
+      blocks.push({ type: 'positive', title: '🎯 Goal Progress', text: `${done}/${total} goals done this week — you\'re making progress! Keep pushing to finish the rest before the week ends.`, hadith: '' });
     }
+  } else {
+    blocks.push({ type: 'tip', title: '🎯 Set Weekly Goals', text: 'You don\'t have any goals set this week. Tap "Weekly Goals" at the top to set 1-3 goals — it gives your week direction and purpose.', hadith: '' });
+  }
+
+  // --- Weekly Review Analysis ---
+  const reviews = getWeeklyReviews();
+  if (reviews.length > 0) {
+    const latestReview = reviews[reviews.length - 1];
+    if (latestReview.nextFocus && latestReview.nextFocus.trim()) {
+      blocks.push({ type: 'tip', title: '📖 Your Focus', text: `From your last review, your focus was: "${latestReview.nextFocus}". Keep this in mind as you plan your days.`, hadith: '' });
+    }
+    if (reviews.length >= 2) {
+      blocks.push({ type: 'positive', title: '📖 Consistent Reflector', text: `You\'ve completed ${reviews.length} weekly reviews. Self-reflection is one of the most powerful habits — the Prophet ﷺ said mukhasaba (self-accounting) is key to growth.`, hadith: '"Take account of yourselves before you are taken to account." — Umar ibn al-Khattab (RA)' });
+    }
+  } else if (data.length >= 7) {
+    blocks.push({ type: 'tip', title: '📖 Try a Weekly Review', text: 'You\'ve logged at least a week of entries — it\'s a great time to reflect. Tap "Weekly Review" at the top to write about what went well and what to improve.', hadith: '' });
   }
 
   // --- Pet Care Reminder ---
